@@ -54,16 +54,18 @@ app.on('activate', () => {
 
 import { ipcMain } from 'electron'
 
+
 // An example of a function that uses the ipc context bridge.
 // this function will log text to the console, and returns a string.
 // Since this function is declared in main, it has access to node modules.
 function example() {
-    console.log("Im from the example bridge function, running from main.")
-    return "👋 Im from the example function (in main), running from the renderer. "
+  console.log("Im from the example bridge function, running from main.")
+  return "👋 Im from the example function (in main), running from the renderer. "
+
 }
 
 app.on('ready', () => {
-    // An example of a function that uses the ipc context bridge.
-    // This part makes the function accessible to the preloader using the ipc.
-    ipcMain.handle('example', example)
+  // An example of a function that uses the ipc context bridge.
+  // This part makes the function accessible to the preloader using the ipc.
+  ipcMain.handle('example', example)
 })
