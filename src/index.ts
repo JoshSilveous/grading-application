@@ -7,24 +7,24 @@ declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
-  app.quit();
+	app.quit();
 }
 
 const createWindow = (): void => {
-  // Create the browser window.
-  const mainWindow = new BrowserWindow({
-    height: 600,
-    width: 800,
-    webPreferences: {
-      preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
-    },
-  });
+	// Create the browser window.
+	const mainWindow = new BrowserWindow({
+		height: 600,
+		width: 800,
+		webPreferences: {
+			preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
+		},
+	});
 
-  // and load the index.html of the app.
-  mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+	// and load the index.html of the app.
+	mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+	// Open the DevTools.
+	mainWindow.webContents.openDevTools();
 };
 
 // This method will be called when Electron has finished
@@ -36,36 +36,41 @@ app.on('ready', createWindow);
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
+	if (process.platform !== 'darwin') {
+		app.quit();
+	}
 });
 
 app.on('activate', () => {
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
-  }
+	// On OS X it's common to re-create a window in the app when the
+	// dock icon is clicked and there are no other windows open.
+	if (BrowserWindow.getAllWindows().length === 0) {
+		createWindow();
+	}
 });
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
 
 import { ipcMain } from 'electron'
+import { setup_func_exports } from './db/setup_func';
 
 
 // An example of a function that uses the ipc context bridge.
 // this function will log text to the console, and returns a string.
 // Since this function is declared in main, it has access to node modules.
+const db_setup_func = require('./db/setup_func') as setup_func_exports
 function example() {
-  console.log("Im from the example bridge function, running from main.")
-  return "👋 Im from the example function (in main), running from the renderer. "
-
+	console.log("Im from the example bridge function, running from main.")
+	db_setup_func.generateTables()
+	return "👋 Im from the example function (in main), running from the renderer. "
 }
 
+
+
+
 app.on('ready', () => {
-  // An example of a function that uses the ipc context bridge.
-  // This part makes the function accessible to the preloader using the ipc.
-  ipcMain.handle('example', example)
+	// An example of a function that uses the ipc context bridge.
+	// This part makes the function accessible to the preloader using the ipc.
+	ipcMain.handle('example', example)
 })

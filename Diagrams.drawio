@@ -225,12 +225,12 @@
                 <mxCell id="g0Pi7KEwvBekAupEvJUZ-146" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;rounded=1;shadow=0;sketch=0;strokeWidth=2;" parent="g0Pi7KEwvBekAupEvJUZ-117" vertex="1">
                     <mxGeometry y="120" width="210" height="30" as="geometry"/>
                 </mxCell>
-                <mxCell id="g0Pi7KEwvBekAupEvJUZ-147" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;editable=1;overflow=hidden;rounded=1;shadow=0;sketch=0;strokeWidth=2;" parent="g0Pi7KEwvBekAupEvJUZ-146" vertex="1">
+                <mxCell id="g0Pi7KEwvBekAupEvJUZ-147" value="★" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;editable=1;overflow=hidden;rounded=1;shadow=0;sketch=0;strokeWidth=2;" parent="g0Pi7KEwvBekAupEvJUZ-146" vertex="1">
                     <mxGeometry width="40" height="30" as="geometry">
                         <mxRectangle width="40" height="30" as="alternateBounds"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="g0Pi7KEwvBekAupEvJUZ-148" value="type" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;overflow=hidden;rounded=1;shadow=0;sketch=0;strokeWidth=2;" parent="g0Pi7KEwvBekAupEvJUZ-146" vertex="1">
+                <mxCell id="g0Pi7KEwvBekAupEvJUZ-148" value="assignment_type" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;overflow=hidden;rounded=1;shadow=0;sketch=0;strokeWidth=2;" parent="g0Pi7KEwvBekAupEvJUZ-146" vertex="1">
                     <mxGeometry x="40" width="130" height="30" as="geometry">
                         <mxRectangle width="130" height="30" as="alternateBounds"/>
                     </mxGeometry>
@@ -243,7 +243,7 @@
                 <mxCell id="g0Pi7KEwvBekAupEvJUZ-142" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;rounded=1;shadow=0;sketch=0;strokeWidth=2;" parent="g0Pi7KEwvBekAupEvJUZ-117" vertex="1">
                     <mxGeometry y="150" width="210" height="30" as="geometry"/>
                 </mxCell>
-                <mxCell id="g0Pi7KEwvBekAupEvJUZ-143" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;editable=1;overflow=hidden;rounded=1;shadow=0;sketch=0;strokeWidth=2;" parent="g0Pi7KEwvBekAupEvJUZ-142" vertex="1">
+                <mxCell id="g0Pi7KEwvBekAupEvJUZ-143" value="★" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;editable=1;overflow=hidden;rounded=1;shadow=0;sketch=0;strokeWidth=2;" parent="g0Pi7KEwvBekAupEvJUZ-142" vertex="1">
                     <mxGeometry width="40" height="30" as="geometry">
                         <mxRectangle width="40" height="30" as="alternateBounds"/>
                     </mxGeometry>
@@ -261,7 +261,7 @@
                 <mxCell id="g0Pi7KEwvBekAupEvJUZ-138" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;rounded=1;shadow=0;sketch=0;strokeWidth=2;" parent="g0Pi7KEwvBekAupEvJUZ-117" vertex="1">
                     <mxGeometry y="180" width="210" height="30" as="geometry"/>
                 </mxCell>
-                <mxCell id="g0Pi7KEwvBekAupEvJUZ-139" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;editable=1;overflow=hidden;rounded=1;shadow=0;sketch=0;strokeWidth=2;" parent="g0Pi7KEwvBekAupEvJUZ-138" vertex="1">
+                <mxCell id="g0Pi7KEwvBekAupEvJUZ-139" value="★" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;editable=1;overflow=hidden;rounded=1;shadow=0;sketch=0;strokeWidth=2;" parent="g0Pi7KEwvBekAupEvJUZ-138" vertex="1">
                     <mxGeometry width="40" height="30" as="geometry">
                         <mxRectangle width="40" height="30" as="alternateBounds"/>
                     </mxGeometry>
@@ -396,7 +396,7 @@
                 <mxCell id="g0Pi7KEwvBekAupEvJUZ-190" style="edgeStyle=orthogonalEdgeStyle;rounded=1;sketch=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;startArrow=ERmandOne;startFill=0;endArrow=ERzeroToMany;endFill=0;startSize=15;endSize=15;targetPerimeterSpacing=0;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" source="g0Pi7KEwvBekAupEvJUZ-101" target="g0Pi7KEwvBekAupEvJUZ-152" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="4LhRwC0AqC9r9FqbAEly-1" value="Can be either &quot;HOMEWORK&quot; or &quot;TEST" style="text;html=1;strokeColor=#666666;fillColor=#f5f5f5;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#333333;spacingLeft=3;spacingRight=3;spacingTop=3;spacingBottom=3;glass=0;" parent="1" vertex="1">
+                <mxCell id="4LhRwC0AqC9r9FqbAEly-1" value="Can be either &quot;HOMEWORK&quot; or &quot;TEST&quot;" style="text;html=1;strokeColor=#666666;fillColor=#f5f5f5;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#333333;spacingLeft=3;spacingRight=3;spacingTop=3;spacingBottom=3;glass=0;" parent="1" vertex="1">
                     <mxGeometry x="390" y="370" width="240" height="20" as="geometry"/>
                 </mxCell>
                 <mxCell id="4LhRwC0AqC9r9FqbAEly-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;sketch=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;dashed=1;strokeWidth=2;endArrow=block;endFill=0;startSize=15;endSize=15;curved=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" source="g0Pi7KEwvBekAupEvJUZ-146" target="4LhRwC0AqC9r9FqbAEly-1" edge="1">
