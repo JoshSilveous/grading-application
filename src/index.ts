@@ -53,9 +53,6 @@ app.on('activate', () => {
 // code. You can also put them in separate files and import them here.
 
 import { ipcMain } from 'electron'
-import { class_func_exports } from './db/class_func';
-import { setup_func_exports } from './db/setup_func';
-import { testdata_exports } from './db/testdata';
 
 
 const db_setup_func = require('./db/setup_func') as setup_func_exports
@@ -64,10 +61,14 @@ const db_class_func = require('./db/class_func') as class_func_exports
 
 function dbtest() {
 	console.log("Im from the example bridge function, running from main.")
-    db_setup_func.dropTables()
+	db_setup_func.dropTables()
 	db_setup_func.generateTables()
-    db_testdata.insertTestData()
-    return db_class_func.getClassData(1)
+	db_testdata.insertTestData()
+	console.log(db_class_func.getClassInfo(1))
+	db_class_func.editClass(1, "newname", "newdescription")
+	console.log(db_class_func.getClassInfo(1))
+
+	return db_class_func.getClassData(1)
 }
 
 
