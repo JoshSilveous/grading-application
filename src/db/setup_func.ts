@@ -1,16 +1,15 @@
 import db from './db_bridge'
 
-async function generateTables() {
-    console.log('trying to generate tables')
-    const sqlCreateTableClass = `
+function generateTables() {
+
+    const sql = `
         CREATE TABLE IF NOT EXISTS Class (
             class_id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT(50) NOT NULL,
             description TEXT(200)
-        );`
+        );
 
-    const sqlCreateTableAssignment = `
-        CREATE TABLE Assignment (
+        CREATE TABLE IF NOT EXISTS Assignment (
             assignment_id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT(50) NOT NULL,
             description INTEGER,
@@ -23,19 +22,17 @@ async function generateTables() {
                 FOREIGN KEY (class_id)
                 REFERENCES Class(class_id)
                 ON DELETE CASCADE
-        );`
+        );
 
-    const sqlCreateTableStudent = `
-        CREATE TABLE Student (
+        CREATE TABLE IF NOT EXISTS Student (
             student_id INTEGER PRIMARY KEY AUTOINCREMENT,
             first_name TEXT(25) NOT NULL,
             last_name TEXT(25) NOT NULL
-        );`
-    const sqlCreateTableGrade = `
-        CREATE TABLE Grade (
+        );
+
+        CREATE TABLE IF NOT EXISTS Grade (
             student_id INTEGER,
             assignment_id INTEGER,
-            PRIMARY KEY (student_id, assignment_id),
             earned_points INTEGER NOT NULL,
             is_exempt INTEGER NOT NULL,
             CONSTRAINT fk_student_id
@@ -46,13 +43,12 @@ async function generateTables() {
                 FOREIGN KEY (assignment_id)
                 REFERENCES Assignment(assignment_id)
                 ON DELETE CASCADE,
-        );`
+            PRIMARY KEY (student_id, assignment_id)
+        );
 
-    const sqlCreateTableEnrollment = `
-        CREATE TABLE Enrollment (
+        CREATE TABLE IF NOT EXISTS Enrollment (
             class_id INTEGER,
             student_id INTEGER,
-            PRIMARY KEY (class_id, student_id),
             earned_points INTEGER NOT NULL,
             is_exempt INTEGER NOT NULL,
             CONSTRAINT fk_class_id
@@ -62,34 +58,34 @@ async function generateTables() {
             CONSTRAINT fk_student_id
                 FOREIGN KEY (student_id)
                 REFERENCES Student(student_id)
-                ON DELETE CASCADE
+                ON DELETE CASCADE,
+            PRIMARY KEY (class_id, student_id)
         );`
 
-    const sqlCreateAll = sqlCreateTableClass + sqlCreateTableAssignment +
-        sqlCreateTableStudent + sqlCreateTableGrade + sqlCreateTableEnrollment
-    try {
-        db.exec(sqlCreateAll)
-    }
-    catch (error) {
-        console.log(error)
-    }
+    db.exec(sql)
 }
 
 async function dropTables() {
-    console.log('trying to drop tables')
-    await db.exec("DROP TABLE IF EXISTS Enrollment;")
-    await db.exec("DROP TABLE IF EXISTS Grade;")
-    await db.exec("DROP TABLE IF EXISTS Student;")
-    await db.exec("DROP TABLE IF EXISTS Class;")
-    await db.exec("DROP TABLE IF EXISTS Assignment");
-    console.log('tables dropped')
+    const sql = `
+        DROP TABLE IF EXISTS Enrollment;
+        DROP TABLE IF EXISTS Grade;
+        DROP TABLE IF EXISTS Student;
+        DROP TABLE IF EXISTS Class;
+        DROP TABLE IF EXISTS Assignment
+    `
+
+    db.exec(sql)
 }
 
 export interface setup_func_exports {
     /**
-     * Creates the base tables in the DB.
+     * Creates all tables in the database.
      */
     generateTables: () => void,
+    /**
+     * Drops all tables in the database.
+     * Intended for debug purposes
+     */
     dropTables: () => void
 }
 module.exports = {
