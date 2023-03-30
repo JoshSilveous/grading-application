@@ -4,9 +4,10 @@ interface Window {
      */
     api: {
         /**
-         * An example function to demonstrate the main-renderer bridge. Logs a message to the `node` console.
-         * @returns A string that says "👋 Im from the example bridge function, running the renderer. "
+         * Returns an promise, then an object containing the class id, name, description, and student info.
+         * @param class_id the ID of the class requesting
+         * @returns Object containing all data about the class, it's students, and their grades.
          */
-        example: () => Promise<string>
+        dbtest: () => Promise<ClassData>
     }
 }

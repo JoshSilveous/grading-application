@@ -6,5 +6,5 @@ contextBridge.exposeInMainWorld('api', {
     // An example of a function that uses the ipc context bridge.
     // The contextBridge.exposeInMainWorld will make these functions accessible to the renderer.
     // The ipcRenderer.invoke grabs the function from the main file (index.ts).
-    example: () => ipcRenderer.invoke('example')
+    dbtest: () => ipcRenderer.invoke('dbtest')
 } as Window['api'])

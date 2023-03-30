@@ -53,29 +53,26 @@ app.on('activate', () => {
 // code. You can also put them in separate files and import them here.
 
 import { ipcMain } from 'electron'
+import { class_func_exports } from './db/class_func';
 import { setup_func_exports } from './db/setup_func';
 import { testdata_exports } from './db/testdata';
 
 
-// An example of a function that uses the ipc context bridge.
-// this function will log text to the console, and returns a string.
-// Since this function is declared in main, it has access to node modules.
 const db_setup_func = require('./db/setup_func') as setup_func_exports
 const db_testdata = require('./db/testdata') as testdata_exports
+const db_class_func = require('./db/class_func') as class_func_exports
 
-function example() {
+function dbtest() {
 	console.log("Im from the example bridge function, running from main.")
     db_setup_func.dropTables()
 	db_setup_func.generateTables()
     db_testdata.insertTestData()
-	return "👋 Im from the example function (in main), running from the renderer. "
+    return db_class_func.getClassData(1)
 }
 
 
 
 
 app.on('ready', () => {
-	// An example of a function that uses the ipc context bridge.
-	// This part makes the function accessible to the preloader using the ipc.
-	ipcMain.handle('example', example)
+	ipcMain.handle('dbtest', dbtest)
 })
