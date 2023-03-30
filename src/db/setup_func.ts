@@ -49,8 +49,6 @@ function generateTables() {
         CREATE TABLE IF NOT EXISTS Enrollment (
             class_id INTEGER,
             student_id INTEGER,
-            earned_points INTEGER NOT NULL,
-            is_exempt INTEGER NOT NULL,
             CONSTRAINT fk_class_id
                 FOREIGN KEY (class_id)
                 REFERENCES Class(class_id)
@@ -65,7 +63,8 @@ function generateTables() {
     db.exec(sql)
 }
 
-async function dropTables() {
+// for debug purposes
+function dropTables() {
     const sql = `
         DROP TABLE IF EXISTS Enrollment;
         DROP TABLE IF EXISTS Grade;
