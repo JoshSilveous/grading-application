@@ -29,9 +29,8 @@ function getClassData(class_id: Number): ClassData {
     `
     let stmtStudentNames = db.prepare(sqlStudentNames)
     let retStudentNames = stmtStudentNames.all()
-    console.log(retStudentNames)
-    
-    
+
+
     const studentInfo = retStudentNames.map(student => {
         const sqlGrades = `
             SELECT assignment_id, earned_points, is_exempt
@@ -43,7 +42,7 @@ function getClassData(class_id: Number): ClassData {
         const stmtGrades = db.prepare(sqlGrades)
         const resGrades = stmtGrades.all().map(grade => {
             // convert is_exempt from Number (1 or 0) to Boolean (true or false)
-            return {...grade, is_exempt: grade.is_exempt ? true : false}
+            return { ...grade, is_exempt: grade.is_exempt ? true : false }
         })
 
         return {
@@ -64,9 +63,67 @@ function getClassData(class_id: Number): ClassData {
 
 }
 
+function createClass(name: String, description: String): Number {
+    const sqlInsert = `
+        INSERT INTO Class (name, description)
+        VALUES ('${name}', '${description}');
+    `
+    db.exec(sqlInsert)
 
-// Type declarations must be global for type-checking in other files
+    const sqlGetID = `
+        SELECT class_id FROM Class
+        WHERE name = '${name}' AND description = '${description}';
+    `
+    const stmt = db.prepare(sqlGetID)
+    const res = stmt.all()
+
+    /* .pop(), just in case there are multiple classes with the same 
+        name & description, which is allowed. this will always return 
+        the latest entry. */
+    return res.pop().class_id
+}
+
+function deleteClass(class_id: Number): void {
+    const sql = `
+        DELETE FROM Class WHERE class_id = ${class_id}
+    `
+    db.exec(sql)
+}
+
+function getClassInfo(class_id: Number): ClassInfo {
+    const sql = `
+        SELECT * FROM Class WHERE class_id = ${class_id}
+    `
+    const stmt = db.prepare(sql)
+    const res: ClassInfo = stmt.all()[0]
+
+    return res
+}
+
+function getClassList(): ClassInfo[] {
+    const sql = `
+        SELECT * FROM Class;
+    `
+    const stmt = db.prepare(sql)
+    const res: ClassInfo[] = stmt.all()
+
+    return res
+}
+
+function editClass(class_id: Number, name: String, description: String): void {
+    const sql = `
+        UPDATE Class
+        SET name = '${name}',
+            description = '${description}'
+        WHERE class_id = ${class_id};
+    `
+    db.exec(sql)
+}
+
+
 declare global {
+    // Type declarations must be global for type-checking in other files
+
     interface ClassData {
         id: Number,
         name: String,
@@ -86,18 +143,59 @@ declare global {
         earned_points: Number,
         is_exempt: Boolean
     }
+    interface ClassInfo {
+        class_id: Number,
+        name: String,
+        description: String
+    }
+
+    interface class_func_exports {
+        /**
+         * Gets verbose information about a class.
+         * @param class_id the ID of the class being requested.
+         * @returns Object containing all data about the class, it's students, and their grades.
+         */
+        getClassData: (class_id: Number) => ClassData,
+        /**
+         * Creates a class in the database.
+         * @param name The name of the class.
+         * @param description A brief description of the class.
+         * @returns The newly-created `class_id`.
+         */
+        createClass: (name: String, description: String) => Number,
+        /**
+         * Deletes a class from the database.
+         * @param class_id The ID of the class.
+         */
+        deleteClass: (class_id: Number) => void,
+        /**
+         * Gets surface-level information about the class.
+         * @param class_id The ID of the class.
+         * @returns Object containing `class_id`, `name`, and `description`.
+         */
+        getClassInfo: (class_id: Number) => ClassInfo,
+        /**
+         * Gets surface-level information about all classes
+         * @returns Array of objects containing `class_id`, `name`, and `description`.
+         */
+        getClassList: () => ClassInfo[],
+        /**
+         * 
+         * @param class_id The ID of the class
+         * @param name The new name for the class
+         * @param description The new description for the class
+         */
+        editClass: (class_id: Number, name?: String, description?: String) => void
+
+    }
 }
- 
 
 
-export interface class_func_exports {
-    /**
-     * Returns an object containing the class id, name, description, and student info.
-     * @param class_id the ID of the class requesting
-     * @returns Object containing all data about the class, it's students, and their grades.
-     */
-    getClassData: (class_id: Number) => ClassData
-}
 module.exports = {
-    getClassData
+    getClassData,
+    createClass,
+    deleteClass,
+    getClassInfo,
+    getClassList,
+    editClass
 } as class_func_exports
