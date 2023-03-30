@@ -264,12 +264,14 @@ function insertTestData() {
     db.exec(sql)
 }
 
-export interface testdata_exports {
-    /**
-     * Inserts some testing data into the database.
-     * Debug purposes only.
-     */
-    insertTestData: () => void
+declare global {
+    interface testdata_exports {
+        /**
+         * Inserts some testing data into the database.
+         * Debug purposes only.
+         */
+        insertTestData: () => void
+    }
 }
 
 module.exports = {

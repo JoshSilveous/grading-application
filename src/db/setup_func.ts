@@ -76,16 +76,18 @@ function dropTables() {
     db.exec(sql)
 }
 
-export interface setup_func_exports {
-    /**
-     * Creates all tables in the database.
-     */
-    generateTables: () => void,
-    /**
-     * Drops all tables in the database.
-     * Intended for debug purposes
-     */
-    dropTables: () => void
+declare global {
+    interface setup_func_exports {
+        /**
+         * Creates all tables in the database.
+         */
+        generateTables: () => void,
+        /**
+         * Drops all tables in the database.
+         * Intended for debug purposes
+         */
+        dropTables: () => void
+    }
 }
 module.exports = {
     generateTables,
