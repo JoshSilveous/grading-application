@@ -58,15 +58,13 @@ import { ipcMain } from 'electron'
 const db_setup_func = require('./db/setup_func') as setup_func_exports
 const db_testdata = require('./db/testdata') as testdata_exports
 const db_class_func = require('./db/class_func') as class_func_exports
+const db_student_func = require('./db/student_func') as student_func_exports
 
 function dbtest() {
 	console.log("Im from the example bridge function, running from main.")
 	db_setup_func.dropTables()
 	db_setup_func.generateTables()
 	db_testdata.insertTestData()
-	console.log(db_class_func.getClassInfo(1))
-	db_class_func.editClass(1, "newname", "newdescription")
-	console.log(db_class_func.getClassInfo(1))
 
 	return db_class_func.getClassData(1)
 }
