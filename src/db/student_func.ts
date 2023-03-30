@@ -66,8 +66,8 @@ declare global {
         deleteStudent: (student_id: Number) => void,
         /**
          * Creates a new student in the database.
-         * @param first_name First name of the student.
-         * @param last_name Last name of the student.
+         * @param first_name First name of the student. Max 25 chars.
+         * @param last_name Last name of the student. Max 25 chars.
          * @returns The newly-created student's ID.
          */
         createStudent: (first_name: String, last_name: String) => Number,

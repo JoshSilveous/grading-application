@@ -170,8 +170,8 @@ declare global {
         getClassData: (class_id: Number) => ClassData,
         /**
          * Creates a class in the database.
-         * @param name The name of the class.
-         * @param description A brief description of the class.
+         * @param name The name of the class. Max 50 chars.
+         * @param description A brief description of the class. Max 200 chars.
          * @returns The newly-created `class_id`.
          */
         createClass: (name: String, description: String) => Number,
@@ -192,15 +192,17 @@ declare global {
          */
         getClassList: () => ClassInfo[],
         /**
-         * 
-         * @param class_id The ID of the class
-         * @param name The new name for the class
-         * @param description The new description for the class
+         * Edit a class's name & description. You must provide both parameters, so if
+         * you only want to change the name, provide back the original description
+         * (and vice versa).
+         * @param class_id The ID of the class.
+         * @param name The new name for the class. Max 50 chars.
+         * @param description The new description for the class. Max 200 chars.
          */
         editClass: (class_id: Number, name?: String, description?: String) => void,
         /**
          * Gets students that are not in a class (for list)
-         * @param class_id The ID of the class
+         * @param class_id The ID of the class.
          * @returns An array of objects containing the id and names of students.
          */
         getStudentsNotInClass: (class_id: Number) => StudentInfo[]
