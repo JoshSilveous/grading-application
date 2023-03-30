@@ -29,6 +29,16 @@ function createStudent(first_name: String, last_name: String): Number {
     return res.pop().student_id
 }
 
+function editStudent(student_id: Number, first_name: String, last_name: String): void {
+    const sql = `
+        UPDATE Student
+        SET first_name = '${first_name}',
+            last_name = '${last_name}'
+        WHERE student_id = ${student_id}
+    `
+    db.exec(sql)
+}
+
 function getStudentEnrollments(student_id: Number): ClassInfo[] {
     const sql = `
         SELECT Class.class_id, name, description
@@ -72,6 +82,13 @@ declare global {
          */
         createStudent: (first_name: String, last_name: String) => Number,
         /**
+         * Edit a student's name.
+         * @param student_id The ID of the student.
+         * @param first_name New irst name of the student. Max 25 chars.
+         * @param last_name New last name of the student. Max 25 chars.
+         */
+        editStudent: (student_id: Number, first_name: String, last_name: String) => void
+        /**
          * Gets an array of classes the student is in.
          * @param student_id The ID of the student.
          * @returns An array of objects containing the class's IDs, names, and descriptions.
@@ -88,6 +105,7 @@ declare global {
 module.exports = {
     deleteStudent,
     createStudent,
+    editStudent,
     getStudentEnrollments,
     getStudentList
 } as student_func_exports

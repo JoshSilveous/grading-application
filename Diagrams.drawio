@@ -427,7 +427,7 @@
         </mxGraphModel>
     </diagram>
     <diagram id="GL129LJwSuCCeoanufeO" name="DB Functions">
-        <mxGraphModel dx="1290" dy="1258" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+        <mxGraphModel dx="1055" dy="743" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -976,7 +976,7 @@
                     <mxGeometry x="2450" y="320" width="540" height="30" as="geometry"/>
                 </mxCell>
                 <mxCell id="LEp-ov7YwUuPTGtwsPpf-9" value="" style="swimlane;startSize=0;fontSize=34;" parent="1" vertex="1">
-                    <mxGeometry x="3030" y="350" width="540" height="1320" as="geometry"/>
+                    <mxGeometry x="3030" y="350" width="540" height="1750" as="geometry"/>
                 </mxCell>
                 <mxCell id="FTDPrn_bO_SP3x0vxpdz-1" value="&lt;b&gt;getStudentList()&lt;/b&gt;&lt;br&gt;&lt;u&gt;Parameters&lt;/u&gt;" style="whiteSpace=wrap;html=1;rounded=1;shadow=0;sketch=0;strokeColor=#82b366;strokeWidth=2;fillColor=#d5e8d4;arcSize=50;align=left;spacingLeft=22;" parent="LEp-ov7YwUuPTGtwsPpf-9" vertex="1">
                     <mxGeometry x="40" y="30" width="200" height="80" as="geometry"/>
@@ -1082,6 +1082,34 @@
                 <mxCell id="VuEaehIpy-iYBx3kaS65-94" style="edgeStyle=orthogonalEdgeStyle;rounded=0;sketch=0;jumpStyle=none;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;strokeWidth=2;endArrow=classic;endFill=1;startSize=15;endSize=15;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="LEp-ov7YwUuPTGtwsPpf-9" source="VuEaehIpy-iYBx3kaS65-95" target="VuEaehIpy-iYBx3kaS65-98" edge="1">
                     <mxGeometry relative="1" as="geometry">
                         <mxPoint x="140" y="1242" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="SEH7dsY91dgXJTqp2I6X-1" value="&lt;b&gt;editStudent()&lt;/b&gt;&lt;br&gt;&lt;u&gt;Parameters&lt;/u&gt;&lt;br&gt;student_id: Number,&lt;br&gt;first_name: String,&lt;br&gt;last_name: String" style="whiteSpace=wrap;html=1;rounded=1;shadow=0;sketch=0;strokeColor=#82b366;strokeWidth=2;fillColor=#d5e8d4;arcSize=50;align=left;spacingLeft=22;" vertex="1" parent="LEp-ov7YwUuPTGtwsPpf-9">
+                    <mxGeometry x="40" y="1330" width="200" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="SEH7dsY91dgXJTqp2I6X-2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;sketch=0;jumpStyle=none;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;endArrow=classic;endFill=1;startSize=15;endSize=15;elbow=vertical;" edge="1" parent="LEp-ov7YwUuPTGtwsPpf-9" source="SEH7dsY91dgXJTqp2I6X-1" target="SEH7dsY91dgXJTqp2I6X-3">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="-2895" y="1070" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="SEH7dsY91dgXJTqp2I6X-3" value="Execute SQLite" style="shape=datastore;whiteSpace=wrap;html=1;rounded=1;shadow=0;sketch=0;strokeColor=default;strokeWidth=2;fillColor=#FFF2CC;" vertex="1" parent="LEp-ov7YwUuPTGtwsPpf-9">
+                    <mxGeometry x="105" y="1452" width="70" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="SEH7dsY91dgXJTqp2I6X-4" value="UPDATE Student&lt;br&gt;SET first_name = '${first_name}',&lt;br&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#9;&lt;/span&gt;last_name = '${last_name}'&lt;br&gt;WHERE student_id = ${student_id};" style="text;html=1;strokeColor=#666666;fillColor=#f5f5f5;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#333333;spacingLeft=3;spacingRight=3;spacingTop=3;spacingBottom=3;" vertex="1" parent="LEp-ov7YwUuPTGtwsPpf-9">
+                    <mxGeometry x="225" y="1410" width="225" height="57.5" as="geometry"/>
+                </mxCell>
+                <mxCell id="SEH7dsY91dgXJTqp2I6X-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.3;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;startSize=15;endSize=15;sketch=1;curveFitting=1;jiggle=2;dashed=1;endArrow=block;endFill=0;curved=1;" edge="1" parent="LEp-ov7YwUuPTGtwsPpf-9" source="SEH7dsY91dgXJTqp2I6X-3" target="SEH7dsY91dgXJTqp2I6X-4">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="-2760" y="1002" as="sourcePoint"/>
+                        <mxPoint x="-2700" y="1082" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="SEH7dsY91dgXJTqp2I6X-6" value="&lt;b&gt;Return new student ID&lt;/b&gt;" style="whiteSpace=wrap;html=1;rounded=1;shadow=0;sketch=0;strokeColor=#82b366;strokeWidth=2;fillColor=#d5e8d4;arcSize=50;align=center;spacingLeft=5;spacingRight=5;" vertex="1" parent="LEp-ov7YwUuPTGtwsPpf-9">
+                    <mxGeometry x="85" y="1572" width="110" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="SEH7dsY91dgXJTqp2I6X-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;sketch=0;jumpStyle=none;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;strokeWidth=2;endArrow=classic;endFill=1;startSize=15;endSize=15;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="LEp-ov7YwUuPTGtwsPpf-9" source="SEH7dsY91dgXJTqp2I6X-3" target="SEH7dsY91dgXJTqp2I6X-6">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="-2890" y="1212" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
                 <mxCell id="LEp-ov7YwUuPTGtwsPpf-10" value="&lt;h1&gt;&lt;span style=&quot;font-size: 34px;&quot;&gt;Student Functions&lt;/span&gt;&lt;/h1&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
