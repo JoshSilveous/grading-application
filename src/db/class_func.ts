@@ -120,6 +120,18 @@ function editClass(class_id: Number, name: String, description: String): void {
     db.exec(sql)
 }
 
+function getStudentsNotInClass(class_id: Number): StudentInfo[] {
+    const sql = `
+        SELECT student_id, first_name, last_name FROM Student
+            INNER JOIN Enrollment
+                ON Student.student_id = Enrollment.student_id
+            WHERE class_id NOT ${class_id};
+    `
+    const stmt = db.prepare(sql)
+    const res = stmt.all()
+    return res
+}
+
 
 declare global {
     // Type declarations must be global for type-checking in other files
@@ -185,8 +197,13 @@ declare global {
          * @param name The new name for the class
          * @param description The new description for the class
          */
-        editClass: (class_id: Number, name?: String, description?: String) => void
-
+        editClass: (class_id: Number, name?: String, description?: String) => void,
+        /**
+         * Gets students that are not in a class (for list)
+         * @param class_id The ID of the class
+         * @returns An array of objects containing the id and names of students.
+         */
+        getStudentsNotInClass: (class_id: Number) => StudentInfo[]
     }
 }
 
@@ -197,5 +214,6 @@ module.exports = {
     deleteClass,
     getClassInfo,
     getClassList,
-    editClass
+    editClass,
+    getStudentsNotInClass
 } as class_func_exports
