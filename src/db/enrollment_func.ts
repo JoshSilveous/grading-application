@@ -34,7 +34,7 @@ declare global {
     }
 }
 
-module.exports = {
+export default {
     addEnrollment,
     deleteEnrollment
 } as enrollment_func_exports

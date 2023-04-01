@@ -212,7 +212,7 @@ declare global {
 }
 
 
-module.exports = {
+export default {
     getClassData,
     createClass,
     deleteClass,

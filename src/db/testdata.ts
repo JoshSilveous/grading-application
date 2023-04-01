@@ -274,6 +274,6 @@ declare global {
     }
 }
 
-module.exports = {
+export default {
     insertTestData
 } as testdata_exports

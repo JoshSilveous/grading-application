@@ -153,7 +153,7 @@ declare global {
     }
 }
 
-module.exports = {
+export default {
     createAssignment,
     editAssignment,
     deleteAssignment,

@@ -101,7 +101,7 @@ declare global {
     }
 }
 
-module.exports = {
+export default {
     deleteStudent,
     createStudent,
     editStudent,

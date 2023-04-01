@@ -89,7 +89,7 @@ declare global {
         dropTables: () => void
     }
 }
-module.exports = {
+export default {
     generateTables,
     dropTables
 } as setup_func_exports
