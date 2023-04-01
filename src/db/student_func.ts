@@ -13,7 +13,6 @@ function createStudent(first_name: String, last_name: String): Number {
         INSERT INTO Student (first_name, last_name)
         VALUES ('${first_name}', '${last_name}');
     `
-    console.log(sqlInsert)
     db.exec(sqlInsert)
 
     const sqlGetID = `
