@@ -68,4 +68,84 @@ function dbtest() {
 
 app.on('ready', () => {
 	ipcMain.handle('dbtest', dbtest)
+
+    ipcMain.handle('db-setup-generateTables', db.setup.generateTables)
+    ipcMain.handle('db-setup-dropTables', db.setup.dropTables)
+
+    ipcMain.handle('db-test-insertTestData', db.test.insertTestData)
+
+    ipcMain.handle('db-class-getClassData', (e, class_id: Number) => db.class.getClassData(class_id))
+    ipcMain.handle('db-class-createClass', 
+        (e, name: String, description: String) => db.class.createClass(name, description)
+    )
+    ipcMain.handle('db-class-deleteClass', (e, class_id: Number) => db.class.deleteClass(class_id))
+    ipcMain.handle('db-class-getClassInfo', (e, class_id: Number) => db.class.getClassInfo(class_id))
+    ipcMain.handle('db-class-getClassList', () => db.class.getClassList())
+    ipcMain.handle('db-class-editClass', 
+        (e, class_id: Number, name: String, description: String) => db.class.editClass(class_id, name, description)
+    )
+    ipcMain.handle('db-class-getStudentsNotInClass', 
+        (e, class_id: Number) => db.class.getStudentsNotInClass(class_id)
+    )
+
+    ipcMain.handle('db-student-deleteStudent', (e, student_id: Number) => db.student.deleteStudent(student_id))
+    ipcMain.handle('db-student-createStudent', 
+        (e, first_name: String, last_name: String) => db.student.createStudent(first_name, last_name)
+    )
+    ipcMain.handle('db-student-editStudent', 
+        (e, student_id: Number, first_name: String, last_name: String) => 
+            db.student.editStudent(student_id, first_name, last_name)
+    )
+    ipcMain.handle('db-student-getStudentEnrollments', 
+        (e, student_id: Number) => db.student.deleteStudent(student_id)
+    )
+    ipcMain.handle('db-student-getStudentList', 
+        () => db.student.getStudentList()
+    )
+
+    ipcMain.handle('db-assignment-createAssignment', 
+        (e, 
+            class_id: Number, 
+            name: String, 
+            description: String, 
+            assignment_type: "HOMEWORK" | "TEST", 
+            is_extra_credit: Boolean, 
+            max_points: Number
+        ) =>  db.assignment.createAssignment(
+            class_id, name, description, assignment_type, is_extra_credit, max_points
+        )
+    )
+    ipcMain.handle('db-assignment-editAssignment', 
+    (e, 
+        assignment_id: Number, 
+        name: String, 
+        description: String, 
+        assignment_type: "HOMEWORK" | "TEST", 
+        is_extra_credit: Boolean, 
+        max_points: Number
+    ) =>  db.assignment.editAssignment(
+        assignment_id, name, description, assignment_type, is_extra_credit, max_points
+    ))
+    ipcMain.handle('db-assignment-deleteAssignment', 
+        (e, assignment_id: Number) => db.assignment.deleteAssignment(assignment_id)
+    )
+    ipcMain.handle('db-assignment-getAssignment', 
+        (e, assignment_id: Number) => db.assignment.getAssignment(assignment_id)
+    )
+    ipcMain.handle('db-assignment-updateAssignmentOrder', 
+        (e, assignment_id: Number, order_position: Number) => 
+            db.assignment.updateAssignmentOrder(assignment_id, order_position)
+    )
+    
+    ipcMain.handle('db-enrollment-addEnrollment', 
+        (e, class_id: Number, student_id: Number) => 
+            db.enrollment.addEnrollment(class_id, student_id)
+    )
+    ipcMain.handle('db-enrollment-deleteEnrollment', 
+        (e, class_id: Number, student_id: Number) => 
+            db.enrollment.deleteEnrollment(class_id, student_id)
+    )
+
+
+
 })
