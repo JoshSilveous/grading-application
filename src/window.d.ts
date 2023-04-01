@@ -192,4 +192,23 @@ interface Window {
          */
         deleteEnrollment: (class_id: Number, student_id: Number) => Promise<void>
     }
+    /**
+     * Contains functions for updating student grades in the database.
+     */
+    grade: {
+        /**
+         * Change the points earned on an assignment for a student.
+         * @param student_id The ID of the student.
+         * @param assignment_id The ID of the assignment.
+         * @param earned_points New value for earned_points.
+         */
+        editGradePoints: (student_id: Number, assignment_id: Number, earned_points: Number) => Promise<void>,
+        /**
+         * Edit the exempt status on an assignment for a student.
+         * @param student_id The ID of the student.
+         * @param assignment_id The ID of the assignment.
+         * @param is_exempt Whether or not the grade is exempt.
+         */
+        editGradeExempt: (student_id: Number, assignment_id: Number, is_exempt: Boolean) => Promise<void>
+    }
 }

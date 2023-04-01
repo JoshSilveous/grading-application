@@ -146,6 +146,13 @@ app.on('ready', () => {
             db.enrollment.deleteEnrollment(class_id, student_id)
     )
 
-
+    ipcMain.handle('db-grade-editGradePoints', 
+        (e, student_id: Number, assignment_id: Number, earned_points: Number) => 
+            db.grade.editGradePoints(student_id, assignment_id, earned_points)
+    )
+    ipcMain.handle('db-grade-editGradeExempt', 
+        (e, student_id: Number, assignment_id: Number, is_exempt: Boolean) => 
+            db.grade.editGradeExempt(student_id, assignment_id, is_exempt)
+    )
 
 })

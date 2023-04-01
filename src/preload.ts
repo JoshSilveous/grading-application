@@ -57,3 +57,10 @@ contextBridge.exposeInMainWorld('enrollment', {
     deleteEnrollment: (class_id, student_id) => ipcRenderer.invoke('db-enrollment-deleteEnrollment', class_id, student_id)
 } as Window['enrollment'])
 
+contextBridge.exposeInMainWorld('grade', {
+    editGradePoints: (student_id, assignment_id, earned_points) => 
+        ipcRenderer.invoke('db-grade-editGradePoints', student_id, assignment_id, earned_points),
+    editGradeExempt: (student_id, assignment_id, is_exempt) => 
+        ipcRenderer.invoke('db-grade-editGradeExempt', student_id, assignment_id, is_exempt),
+} as Window['grade'])
+

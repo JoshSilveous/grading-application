@@ -4,6 +4,7 @@ import class_func from './class_func'
 import student_func from './student_func'
 import enrollment_func from './enrollment_func'
 import assignment_func from './assignment_func'
+import grade_func from './grade_func'
 
 export default {
     /**
@@ -57,5 +58,12 @@ export default {
     enrollment: {
         addEnrollment: enrollment_func.addEnrollment,
         deleteEnrollment: enrollment_func.deleteEnrollment
-    } as enrollment_func_exports
+    } as enrollment_func_exports,
+    /**
+     * Contains functions for updating student grades in the database.
+     */
+    grade: {
+        editGradePoints: grade_func.editGradePoints,
+        editGradeExempt: grade_func.editGradeExempt
+    } as grade_func_exports
 }
