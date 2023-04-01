@@ -13,7 +13,7 @@ function getClassData(class_id: Number): ClassData {
         SELECT * FROM Assignment WHERE class_id = ${class_id};
     `
     const stmtAssignments = db.prepare(sqlAssignments)
-    const retAssignments = stmtAssignments.all()
+    const retAssignments: AssignmentInfo[] = stmtAssignments.all()
 
     // Create a list of assignment_id IN Class
     let listAssignments = ""
@@ -58,6 +58,7 @@ function getClassData(class_id: Number): ClassData {
         id: class_id,
         name: retClassInfo.name,
         description: retClassInfo.description,
+        assignments: retAssignments,
         studentInfo: studentInfo
     } as ClassData
 
@@ -140,6 +141,7 @@ declare global {
         id: Number,
         name: String,
         description: String,
+        assignments: AssignmentInfo[],
         studentInfo: StudentGrades[]
     }
     interface StudentGrades {
@@ -165,7 +167,7 @@ declare global {
         /**
          * Gets verbose information about a class.
          * @param class_id the ID of the class being requested.
-         * @returns Object containing all data about the class, it's students, and their grades.
+         * @returns Object containing all data about the class, it's assignments, it's students, and their grades.
          */
         getClassData: (class_id: Number) => ClassData,
         /**
