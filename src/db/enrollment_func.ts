@@ -6,6 +6,21 @@ function addEnrollment(class_id: Number, student_id: Number): void {
         VALUES (${class_id}, ${student_id});
     `
     db.exec(sql)
+
+    // Add a grade of '0' for each assignment in the class to the new user.
+    const sqlGetAssignmentsInClass = `
+        SELECT assignment_id FROM Assignment WHERE class_id = ${class_id};
+    `
+    const stmtGetAssignmentsInClass = db.prepare(sqlGetAssignmentsInClass)
+    const assignmentsInClass = stmtGetAssignmentsInClass.all()
+
+    let sqlInsertGrades = ''
+    assignmentsInClass.forEach(assignment => {
+        sqlInsertGrades += 
+            `INSERT INTO Grade VALUES (${student_id}, ${assignment.assignment_id}, 0, 0);`
+    })
+    db.exec(sqlInsertGrades)
+
 }
 
 function deleteEnrollment(class_id: Number, student_id: Number): void {

@@ -28,6 +28,8 @@ function createAssignment(
     `
     db.exec(sqlInsert)
 
+    
+    
     const sqlGetID = `
         SELECT assignment_id FROM Assignment
         WHERE class_id = ${class_id}
@@ -36,11 +38,27 @@ function createAssignment(
         AND assignment_type = '${assignment_type}'
         AND is_extra_credit = ${is_extra_credit ? 1 : 0}
         AND max_points = ${max_points};
-    `
+        `
+        
+    const stmtGetID = db.prepare(sqlGetID)
+    const resGetID = stmtGetID.all().pop().assignment_id
 
-    const stmt = db.prepare(sqlGetID)
-    const res = stmt.all()
-    return res.pop().assignment_id
+
+    // Create entries in the `Grade` table for each assignment, with a default value of 0
+    const sqlGetStudentsInClass = `
+        SELECT student_id FROM Enrollment WHERE class_id = ${class_id}
+    `
+    const stmtGetStudentsInClass = db.prepare(sqlGetStudentsInClass)
+    const studentsInClass = stmtGetStudentsInClass.all()
+
+    let sqlInsertGrades = ''
+    studentsInClass.forEach(student => {
+        sqlInsertGrades += 
+            `INSERT INTO Grade VALUES (${student.student_id}, ${resGetID}, 0, 0);`
+    })
+    db.exec(sqlInsertGrades)
+
+    return resGetID
 }
 function editAssignment(
     assignment_id: Number,
