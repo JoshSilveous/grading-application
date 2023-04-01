@@ -55,22 +55,16 @@ app.on('activate', () => {
 import { ipcMain } from 'electron'
 
 
-const db_setup_func = require('./db/setup_func') as setup_func_exports
-const db_testdata = require('./db/testdata') as testdata_exports
-const db_class_func = require('./db/class_func') as class_func_exports
-const db_student_func = require('./db/student_func') as student_func_exports
-const db_assignment_func = require('./db/assignment_func') as assignment_func_exports
+
+import db from './db'
 
 function dbtest() {
-	db_setup_func.dropTables()
-	db_setup_func.generateTables()
-	db_testdata.insertTestData()
+	db.setup.dropTables()
+	db.setup.generateTables()
+	db.test.insertTestData()
 
-	return db_class_func.getClassData(1)
+	return db.class.getClassData(1)
 }
-
-
-
 
 app.on('ready', () => {
 	ipcMain.handle('dbtest', dbtest)
