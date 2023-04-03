@@ -1,6 +1,6 @@
 import db from './db_bridge'
 
-function deleteStudent(student_id: Number): void {
+function deleteStudent(student_id: number): void {
     const sql = `
         DELETE FROM Student
         WHERE student_id = ${student_id};
@@ -8,7 +8,7 @@ function deleteStudent(student_id: Number): void {
     db.exec(sql)
 }
 
-function createStudent(first_name: String, last_name: String): Number {
+function createStudent(first_name: string, last_name: string): number {
     const sqlInsert = `
         INSERT INTO Student (first_name, last_name)
         VALUES ('${first_name}', '${last_name}');
@@ -28,7 +28,7 @@ function createStudent(first_name: String, last_name: String): Number {
     return res.pop().student_id
 }
 
-function editStudent(student_id: Number, first_name: String, last_name: String): void {
+function editStudent(student_id: number, first_name: string, last_name: string): void {
     const sql = `
         UPDATE Student
         SET first_name = '${first_name}',
@@ -38,7 +38,7 @@ function editStudent(student_id: Number, first_name: String, last_name: String):
     db.exec(sql)
 }
 
-function getStudentEnrollments(student_id: Number): ClassInfo[] {
+function getStudentEnrollments(student_id: number): ClassInfo[] {
     const sql = `
         SELECT Class.class_id, name, description
             FROM Class INNER JOIN Enrollment
@@ -63,36 +63,36 @@ function getStudentList(): StudentInfo[] {
 
 declare global {
     interface StudentInfo {
-        student_id: Number,
-        first_name: String,
-        last_name: String
+        student_id: number,
+        first_name: string,
+        last_name: string
     }
     interface student_func_exports {
         /**
          * Removes a student from the database, including enrollments and grades.
          * @param student_id The ID of the student.
          */
-        deleteStudent: (student_id: Number) => void,
+        deleteStudent: (student_id: number) => void,
         /**
          * Creates a new student in the database.
          * @param first_name First name of the student. Max 25 chars.
          * @param last_name Last name of the student. Max 25 chars.
          * @returns The newly-created student's ID.
          */
-        createStudent: (first_name: String, last_name: String) => Number,
+        createStudent: (first_name: string, last_name: string) => number,
         /**
          * Edit a student's name.
          * @param student_id The ID of the student.
          * @param first_name New irst name of the student. Max 25 chars.
          * @param last_name New last name of the student. Max 25 chars.
          */
-        editStudent: (student_id: Number, first_name: String, last_name: String) => void
+        editStudent: (student_id: number, first_name: string, last_name: string) => void
         /**
          * Gets an array of classes the student is in.
          * @param student_id The ID of the student.
          * @returns An array of objects containing the class's IDs, names, and descriptions.
          */
-        getStudentEnrollments: (student_id: Number) => ClassInfo[],
+        getStudentEnrollments: (student_id: number) => ClassInfo[],
         /**
          * Gets an array of all students in the database.
          * @returns An array of objects containing the students's IDs and names.

@@ -1,13 +1,13 @@
 import db from './db_bridge'
 
 function createAssignment(
-    class_id: Number,
-    name: String, 
-    description: String, 
+    class_id: number,
+    name: string, 
+    description: string, 
     assignment_type: AssignmentInfo['assignment_type'], 
-    is_extra_credit: Boolean, 
-    max_points: Number
-): Number {
+    is_extra_credit: boolean, 
+    max_points: number
+): number {
 
     /*  order_position determines the order in which assignments will be layed out in 
         the table for the user. This is stored in the database so it can persist among 
@@ -61,12 +61,12 @@ function createAssignment(
     return resGetID
 }
 function editAssignment(
-    assignment_id: Number,
-    name: String, 
-    description: String, 
+    assignment_id: number,
+    name: string, 
+    description: string, 
     assignment_type: AssignmentInfo['assignment_type'], 
-    is_extra_credit: Boolean, 
-    max_points: Number
+    is_extra_credit: boolean, 
+    max_points: number
 ): void {
     const sql = `
         UPDATE Assignment
@@ -79,14 +79,14 @@ function editAssignment(
     `
     db.exec(sql)
 }
-function deleteAssignment(assignment_id: Number): void {
+function deleteAssignment(assignment_id: number): void {
     const sql = `
         DELETE FROM Assignment
         WHERE assignment_id = ${assignment_id};
     `
     db.exec(sql)
 }
-function getAssignment(assignment_id: Number): AssignmentInfo {
+function getAssignment(assignment_id: number): AssignmentInfo {
     const sql = `
         SELECT * FROM Assignment
         WHERE assignment_id = ${assignment_id};
@@ -96,7 +96,7 @@ function getAssignment(assignment_id: Number): AssignmentInfo {
     return res[0]
 
 }
-function updateAssignmentOrder(assignment_id: Number, order_position: Number): void {
+function updateAssignmentOrder(assignment_id: number, order_position: number): void {
     const sql = `
         UPDATE Assignment
         SET order_position = ${order_position}
@@ -107,13 +107,13 @@ function updateAssignmentOrder(assignment_id: Number, order_position: Number): v
 
 declare global {
     interface AssignmentInfo {
-        assignment_id: Number,
-        class_id: Number,
-        name: String,
-        description: String,
+        assignment_id: number,
+        class_id: number,
+        name: string,
+        description: string,
         assignment_type: "HOMEWORK" | "TEST",
-        is_extra_credit: Boolean,
-        max_points: Number
+        is_extra_credit: boolean,
+        max_points: number
     }
     interface assignment_func_exports {
         /**
@@ -122,52 +122,52 @@ declare global {
          * @param name The name of the assignment.
          * @param description The description of the assignment (can be blank, must be provided).
          * @param assignment_type The type of assignment. "HOMEWORK" or "TEST".
-         * @param is_extra_credit Boolean, whether the assignment should impact grade negatively.
+         * @param is_extra_credit boolean, whether the assignment should impact grade negatively.
          * @param max_points Total points the assignment is worth.
          * @returns The ID of the newly-created class.
          */
         createAssignment: (
-            class_id: Number,
-            name: String, 
-            description: String, 
+            class_id: number,
+            name: string, 
+            description: string, 
             assignment_type: AssignmentInfo['assignment_type'], 
-            is_extra_credit: Boolean, 
-            max_points: Number
-        ) => Number,
+            is_extra_credit: boolean, 
+            max_points: number
+        ) => number,
         /**
          * Edit an assignment in the database.
          * @param assignment_id The ID of the assignment.
          * @param name The name of the assignment.
          * @param description The description of the assignment (can be blank, must be provided).
          * @param assignment_type The type of assignment. "HOMEWORK" or "TEST".
-         * @param is_extra_credit Boolean, whether the assignment should impact grade negatively.
+         * @param is_extra_credit boolean, whether the assignment should impact grade negatively.
          * @param max_points Total points the assignment is worth.
          */
         editAssignment: (
-            assignment_id: Number,
-            name: String, 
-            description: String, 
+            assignment_id: number,
+            name: string, 
+            description: string, 
             assignment_type: AssignmentInfo['assignment_type'], 
-            is_extra_credit: Boolean, 
-            max_points: Number
+            is_extra_credit: boolean, 
+            max_points: number
         ) => void,
         /**
          * Delete an assignment from the database.
          * @param assignment_id The ID of the assignment.
          */
-        deleteAssignment: (assignment_id: Number) => void,
+        deleteAssignment: (assignment_id: number) => void,
         /**
          * Get an assignment's data from the database
          * @param assignment_id The ID of the assignment.
          * @returns An object containing all of the assignment's data.
          */
-        getAssignment: (assignment_id: Number) => AssignmentInfo,
+        getAssignment: (assignment_id: number) => AssignmentInfo,
         /**
          * Updates the display order for the assignment in the class.
          * @param assignment_id The ID of the assignment.
          * @param order_position The display order for the assignment.
          */
-        updateAssignmentOrder: (assignment_id: Number, order_position: Number) => void
+        updateAssignmentOrder: (assignment_id: number, order_position: number) => void
     }
 }
 

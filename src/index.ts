@@ -74,30 +74,30 @@ app.on('ready', () => {
 
     ipcMain.handle('db-test-insertTestData', db.test.insertTestData)
 
-    ipcMain.handle('db-class-getClassData', (e, class_id: Number) => db.class.getClassData(class_id))
+    ipcMain.handle('db-class-getClassData', (e, class_id: number) => db.class.getClassData(class_id))
     ipcMain.handle('db-class-createClass', 
-        (e, name: String, description: String) => db.class.createClass(name, description)
+        (e, name: string, description: string) => db.class.createClass(name, description)
     )
-    ipcMain.handle('db-class-deleteClass', (e, class_id: Number) => db.class.deleteClass(class_id))
-    ipcMain.handle('db-class-getClassInfo', (e, class_id: Number) => db.class.getClassInfo(class_id))
+    ipcMain.handle('db-class-deleteClass', (e, class_id: number) => db.class.deleteClass(class_id))
+    ipcMain.handle('db-class-getClassInfo', (e, class_id: number) => db.class.getClassInfo(class_id))
     ipcMain.handle('db-class-getClassList', () => db.class.getClassList())
     ipcMain.handle('db-class-editClass', 
-        (e, class_id: Number, name: String, description: String) => db.class.editClass(class_id, name, description)
+        (e, class_id: number, name: string, description: string) => db.class.editClass(class_id, name, description)
     )
     ipcMain.handle('db-class-getStudentsNotInClass', 
-        (e, class_id: Number) => db.class.getStudentsNotInClass(class_id)
+        (e, class_id: number) => db.class.getStudentsNotInClass(class_id)
     )
 
-    ipcMain.handle('db-student-deleteStudent', (e, student_id: Number) => db.student.deleteStudent(student_id))
+    ipcMain.handle('db-student-deleteStudent', (e, student_id: number) => db.student.deleteStudent(student_id))
     ipcMain.handle('db-student-createStudent', 
-        (e, first_name: String, last_name: String) => db.student.createStudent(first_name, last_name)
+        (e, first_name: string, last_name: string) => db.student.createStudent(first_name, last_name)
     )
     ipcMain.handle('db-student-editStudent', 
-        (e, student_id: Number, first_name: String, last_name: String) => 
+        (e, student_id: number, first_name: string, last_name: string) => 
             db.student.editStudent(student_id, first_name, last_name)
     )
     ipcMain.handle('db-student-getStudentEnrollments', 
-        (e, student_id: Number) => db.student.deleteStudent(student_id)
+        (e, student_id: number) => db.student.deleteStudent(student_id)
     )
     ipcMain.handle('db-student-getStudentList', 
         () => db.student.getStudentList()
@@ -105,53 +105,53 @@ app.on('ready', () => {
 
     ipcMain.handle('db-assignment-createAssignment', 
         (e, 
-            class_id: Number, 
-            name: String, 
-            description: String, 
+            class_id: number, 
+            name: string, 
+            description: string, 
             assignment_type: "HOMEWORK" | "TEST", 
-            is_extra_credit: Boolean, 
-            max_points: Number
+            is_extra_credit: boolean, 
+            max_points: number
         ) =>  db.assignment.createAssignment(
             class_id, name, description, assignment_type, is_extra_credit, max_points
         )
     )
     ipcMain.handle('db-assignment-editAssignment', 
     (e, 
-        assignment_id: Number, 
-        name: String, 
-        description: String, 
+        assignment_id: number, 
+        name: string, 
+        description: string, 
         assignment_type: "HOMEWORK" | "TEST", 
-        is_extra_credit: Boolean, 
-        max_points: Number
+        is_extra_credit: boolean, 
+        max_points: number
     ) =>  db.assignment.editAssignment(
         assignment_id, name, description, assignment_type, is_extra_credit, max_points
     ))
     ipcMain.handle('db-assignment-deleteAssignment', 
-        (e, assignment_id: Number) => db.assignment.deleteAssignment(assignment_id)
+        (e, assignment_id: number) => db.assignment.deleteAssignment(assignment_id)
     )
     ipcMain.handle('db-assignment-getAssignment', 
-        (e, assignment_id: Number) => db.assignment.getAssignment(assignment_id)
+        (e, assignment_id: number) => db.assignment.getAssignment(assignment_id)
     )
     ipcMain.handle('db-assignment-updateAssignmentOrder', 
-        (e, assignment_id: Number, order_position: Number) => 
+        (e, assignment_id: number, order_position: number) => 
             db.assignment.updateAssignmentOrder(assignment_id, order_position)
     )
     
     ipcMain.handle('db-enrollment-addEnrollment', 
-        (e, class_id: Number, student_id: Number) => 
+        (e, class_id: number, student_id: number) => 
             db.enrollment.addEnrollment(class_id, student_id)
     )
     ipcMain.handle('db-enrollment-deleteEnrollment', 
-        (e, class_id: Number, student_id: Number) => 
+        (e, class_id: number, student_id: number) => 
             db.enrollment.deleteEnrollment(class_id, student_id)
     )
 
     ipcMain.handle('db-grade-editGradePoints', 
-        (e, student_id: Number, assignment_id: Number, earned_points: Number) => 
+        (e, student_id: number, assignment_id: number, earned_points: number) => 
             db.grade.editGradePoints(student_id, assignment_id, earned_points)
     )
     ipcMain.handle('db-grade-editGradeExempt', 
-        (e, student_id: Number, assignment_id: Number, is_exempt: Boolean) => 
+        (e, student_id: number, assignment_id: number, is_exempt: boolean) => 
             db.grade.editGradeExempt(student_id, assignment_id, is_exempt)
     )
 

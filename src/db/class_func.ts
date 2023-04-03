@@ -1,6 +1,6 @@
 import db from './db_bridge'
 
-function getClassData(class_id: Number): ClassData {
+function getClassData(class_id: number): ClassData {
 
     const sqlClassInfo = `
         SELECT * FROM Class WHERE class_id = ${class_id}
@@ -41,7 +41,7 @@ function getClassData(class_id: Number): ClassData {
         `
         const stmtGrades = db.prepare(sqlGrades)
         const resGrades = stmtGrades.all().map(grade => {
-            // convert is_exempt from Number (1 or 0) to Boolean (true or false)
+            // convert is_exempt from number (1 or 0) to boolean (true or false)
             return { ...grade, is_exempt: grade.is_exempt ? true : false }
         })
 
@@ -64,7 +64,7 @@ function getClassData(class_id: Number): ClassData {
 
 }
 
-function createClass(name: String, description: String): Number {
+function createClass(name: string, description: string): number {
     const sqlInsert = `
         INSERT INTO Class (name, description)
         VALUES ('${name}', '${description}');
@@ -84,14 +84,14 @@ function createClass(name: String, description: String): Number {
     return res.pop().class_id
 }
 
-function deleteClass(class_id: Number): void {
+function deleteClass(class_id: number): void {
     const sql = `
         DELETE FROM Class WHERE class_id = ${class_id}
     `
     db.exec(sql)
 }
 
-function getClassInfo(class_id: Number): ClassInfo {
+function getClassInfo(class_id: number): ClassInfo {
     const sql = `
         SELECT * FROM Class WHERE class_id = ${class_id}
     `
@@ -111,7 +111,7 @@ function getClassList(): ClassInfo[] {
     return res
 }
 
-function editClass(class_id: Number, name: String, description: String): void {
+function editClass(class_id: number, name: string, description: string): void {
     const sql = `
         UPDATE Class
         SET name = '${name}',
@@ -121,7 +121,7 @@ function editClass(class_id: Number, name: String, description: String): void {
     db.exec(sql)
 }
 
-function getStudentsNotInClass(class_id: Number): StudentInfo[] {
+function getStudentsNotInClass(class_id: number): StudentInfo[] {
     const sql = `
         SELECT student_id, first_name, last_name FROM Student
             INNER JOIN Enrollment
@@ -138,29 +138,29 @@ declare global {
     // Type declarations must be global for type-checking in other files
 
     interface ClassData {
-        id: Number,
-        name: String,
-        description: String,
+        id: number,
+        name: string,
+        description: string,
         assignments: AssignmentInfo[],
         studentInfo: StudentGrades[]
     }
     interface StudentGrades {
-        student_id: Number,
-        class_id: Number,
-        first_name: String,
-        last_name: String,
+        student_id: number,
+        class_id: number,
+        first_name: string,
+        last_name: string,
         grades: GradeObject[]
     }
     interface GradeObject {
-        student_id: Number,
-        assignment_id: Number,
-        earned_points: Number,
-        is_exempt: Boolean
+        student_id: number,
+        assignment_id: number,
+        earned_points: number,
+        is_exempt: boolean
     }
     interface ClassInfo {
-        class_id: Number,
-        name: String,
-        description: String
+        class_id: number,
+        name: string,
+        description: string
     }
 
     interface class_func_exports {
@@ -169,25 +169,25 @@ declare global {
          * @param class_id the ID of the class being requested.
          * @returns Object containing all data about the class, it's assignments, it's students, and their grades.
          */
-        getClassData: (class_id: Number) => ClassData,
+        getClassData: (class_id: number) => ClassData,
         /**
          * Creates a class in the database.
          * @param name The name of the class. Max 50 chars.
          * @param description A brief description of the class. Max 200 chars.
          * @returns The newly-created `class_id`.
          */
-        createClass: (name: String, description: String) => Number,
+        createClass: (name: string, description: string) => number,
         /**
          * Deletes a class from the database.
          * @param class_id The ID of the class.
          */
-        deleteClass: (class_id: Number) => void,
+        deleteClass: (class_id: number) => void,
         /**
          * Gets surface-level information about the class.
          * @param class_id The ID of the class.
          * @returns Object containing `class_id`, `name`, and `description`.
          */
-        getClassInfo: (class_id: Number) => ClassInfo,
+        getClassInfo: (class_id: number) => ClassInfo,
         /**
          * Gets surface-level information about all classes
          * @returns Array of objects containing `class_id`, `name`, and `description`.
@@ -201,13 +201,13 @@ declare global {
          * @param name The new name for the class. Max 50 chars.
          * @param description The new description for the class. Max 200 chars.
          */
-        editClass: (class_id: Number, name?: String, description?: String) => void,
+        editClass: (class_id: number, name?: string, description?: string) => void,
         /**
          * Gets students that are not in a class (for list)
          * @param class_id The ID of the class.
          * @returns An array of objects containing the id and names of students.
          */
-        getStudentsNotInClass: (class_id: Number) => StudentInfo[]
+        getStudentsNotInClass: (class_id: number) => StudentInfo[]
     }
 }
 

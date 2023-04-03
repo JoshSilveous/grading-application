@@ -1,6 +1,6 @@
 import db from './db_bridge'
 
-function addEnrollment(class_id: Number, student_id: Number): void {
+function addEnrollment(class_id: number, student_id: number): void {
     const sql = `
         INSERT INTO Enrollment 
         VALUES (${class_id}, ${student_id});
@@ -23,7 +23,7 @@ function addEnrollment(class_id: Number, student_id: Number): void {
 
 }
 
-function deleteEnrollment(class_id: Number, student_id: Number): void {
+function deleteEnrollment(class_id: number, student_id: number): void {
     const sql = `
         DELETE FROM Enrollment
         WHERE class_id = ${class_id}
@@ -39,13 +39,13 @@ declare global {
          * @param class_id The ID of the class.
          * @param student_id The ID of the student.
          */
-        addEnrollment: (class_id: Number, student_id: Number) => void,
+        addEnrollment: (class_id: number, student_id: number) => void,
         /**
          * Deletes an enrollment from the database.
          * @param class_id The ID of the class.
          * @param student_id The ID of the student.
          */
-        deleteEnrollment: (class_id: Number, student_id: Number) => void
+        deleteEnrollment: (class_id: number, student_id: number) => void
     }
 }
 
