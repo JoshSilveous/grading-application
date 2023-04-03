@@ -1,4 +1,5 @@
 import React from 'react'
+import { ClassTable } from './ClassTable'
 
 
 
@@ -6,21 +7,41 @@ export default function App() {
 
     // An example of a function that uses the ipc context bridge.
     // This function, example(), is running from the main file, and has access to node modules.
-    
-    async function testdb() {
-        await window.api.dbtest()
-        console.log(await window.class.getClassData(4))
-        let newassignment = await window.assignment.createAssignment(4, "test asg", "testy", "HOMEWORK", false, 69)
-        console.log('assignment', newassignment, 'added')
-        console.log(await window.class.getClassData(4))
-        await window.enrollment.addEnrollment(4, 1)
-        console.log('student 1 added')
-        console.log(await window.class.getClassData(4))
+    const [currentClass, setCurrentClass] = React.useState<number>()
+    const [classList, setClassList] = React.useState<ClassInfo[]>()
+    const [isLoaded, setIsLoaded] = React.useState<boolean>(false)
+
+    React.useEffect(() => {
+        window.class.getClassList()
+            .then(res => {
+                setClassList(res)
+                setCurrentClass(res[0].class_id)
+                setIsLoaded(true)
+            })
+    },[])
+    let optionsDisplay
+    if(classList) {
+        optionsDisplay = classList.map(cls => {
+            return (
+            <option value={cls.class_id} key={cls.class_id}>
+                {cls.name}
+            </option>
+            )
+        })
     }
 
-    testdb()
+    function handleClassChange(e: React.ChangeEvent<HTMLSelectElement>) {
+        console.log(e.target.value)
+        setCurrentClass(parseInt(e.target.value))
+    }
 
-    return (
-        <div>👋 Hello from React!</div>
-    )
+    return (<>
+        {isLoaded ? <>
+            <select onChange={handleClassChange}>
+                {optionsDisplay}
+            </select>
+            <h2>currentClass: {currentClass}</h2>
+            <ClassTable class_id={currentClass} />
+        </> : <h2>Loading...</h2>}
+    </>)
 }
