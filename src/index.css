@@ -5,3 +5,8 @@ body {
   max-width: 38rem;
   padding: 2rem;
 }
+
+.table-grade-cell {
+  display: flex;
+  justify-content: space-between;
+}
