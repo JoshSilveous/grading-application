@@ -7,7 +7,8 @@ interface ClassTableProps {
 export function ClassTable(props: ClassTableProps) {
 
     const [classData, setClassData] = React.useState<ClassData>(null)
-    const tdRefs = React.useRef<HTMLTableCellElement[]>([])
+    const gradeRefs = React.useRef<HTMLTableCellElement[]>([])
+    const rowRefs = React.useRef<HTMLTableRowElement[]>([])
     const saveBtnRef = React.useRef()
     const undoBtnRef = React.useRef()
 
@@ -28,15 +29,16 @@ export function ClassTable(props: ClassTableProps) {
     */
     let pendingChanges: PendingChange[] = []
     function handleGradeChange(e: React.ChangeEvent<HTMLInputElement>) {
-        const tdNode = e.target.parentElement.parentElement
+        const gradeNode = e.target.parentElement.parentElement
         const percentNode = e.target.parentElement.lastChild as HTMLSpanElement
         const inputNode = e.target.parentElement.firstChild as HTMLInputElement
         const newGradeInt = parseInt(inputNode.value)
         const student_id = parseInt(inputNode.dataset.student_id)
         const assignment_id = parseInt(inputNode.dataset.assignment_id)
+        const rowNum = parseInt(inputNode.dataset.rownum)
 
 
-        const maxPoints = parseInt(tdNode.childNodes[0].childNodes[2].nodeValue)
+        const maxPoints = parseInt(gradeNode.childNodes[0].childNodes[2].nodeValue)
 
         if (isNaN(newGradeInt) || newGradeInt.toString() != inputNode.value.trim() || inputNode.id === inputNode.value) {
             // reset value to original if invalid
@@ -44,9 +46,9 @@ export function ClassTable(props: ClassTableProps) {
 
         } else {
             if (inputNode.value !== inputNode.defaultValue) {
-                tdNode.classList.add('unsaved-change')
+                gradeNode.classList.add('unsaved-change')
             } else {
-                tdNode.classList.remove('unsaved-change')
+                gradeNode.classList.remove('unsaved-change')
             }
 
             inputNode.value = newGradeInt.toString()
@@ -57,8 +59,9 @@ export function ClassTable(props: ClassTableProps) {
 
             // Update the percentage shown
             percentNode.innerText = Math.round((newGradeInt / maxPoints) * 1000) / 10 + '%'
+            updateTotal(rowNum)
         }
-        console.log(tdRefs)
+        console.log(rowRefs)
     }
 
     function handleSaveChanges() {
@@ -66,9 +69,9 @@ export function ClassTable(props: ClassTableProps) {
             window.grade.applyBulkChanges(pendingChanges)
             updateClassData()
 
-            const allTdNodes = tdRefs.current
-            allTdNodes.forEach(tdNode => {
-                tdNode.classList.remove('unsaved-change')
+            const allgradeNodes = gradeRefs.current
+            allgradeNodes.forEach(gradeNode => {
+                gradeNode.classList.remove('unsaved-change')
             })
         }
     }
@@ -76,14 +79,14 @@ export function ClassTable(props: ClassTableProps) {
     function handleUndoChanges() {
         if (pendingChanges.length !== 0) {
 
-            const allTdNodes = tdRefs.current
-            allTdNodes.forEach(tdNode => {
-                const percentNode = tdNode.childNodes[0].lastChild as HTMLSpanElement
-                const inputNode = tdNode.childNodes[0].firstChild as HTMLInputElement
+            const allgradeNodes = gradeRefs.current
+            allgradeNodes.forEach(gradeNode => {
+                const percentNode = gradeNode.childNodes[0].lastChild as HTMLSpanElement
+                const inputNode = gradeNode.childNodes[0].firstChild as HTMLInputElement
                 const oldValue = parseInt(inputNode.defaultValue)
 
-                tdNode.classList.remove('unsaved-change')
-                const maxPoints = parseInt(tdNode.childNodes[0].childNodes[2].nodeValue)
+                gradeNode.classList.remove('unsaved-change')
+                const maxPoints = parseInt(gradeNode.childNodes[0].childNodes[2].nodeValue)
                 inputNode.value = inputNode.defaultValue
 
                 // Update the percentage shown
@@ -92,11 +95,56 @@ export function ClassTable(props: ClassTableProps) {
         }
     }
 
+    function updateTotal(rownum: number) {
+
+        let totalStuPoints: number = 0
+        let totalMaxPoints: number = 0
+
+        const rowNodes = rowRefs.current[rownum].childNodes as NodeListOf<HTMLTableCellElement>
+        rowNodes.forEach((node, index) => {
+            if (index !== 0 && index !== rowNodes.length - 1) {
+                let thisGradeNode = node.firstChild.firstChild as HTMLInputElement
+                totalStuPoints += parseInt(thisGradeNode.value)
+
+                let thisGradeMaxPoints = node.firstChild.childNodes[2].nodeValue
+                totalMaxPoints += parseInt(thisGradeMaxPoints)
+            }
+        })
+        const totalNode = rowNodes[rowNodes.length - 1]
+        const totalStuPointsNode = totalNode.childNodes[0] as HTMLSpanElement
+        const totalMaxPointsNode = totalNode.childNodes[1] as HTMLSpanElement
+        const totalLetterNode = totalNode.childNodes[2] as HTMLSpanElement
+        const totalPercentNode = totalNode.childNodes[3] as HTMLSpanElement
+
+        const percentGrade = (Math.round((totalStuPoints / totalMaxPoints) * 1000) / 10) + '%'
+
+        totalStuPointsNode.innerText = totalStuPoints.toString()
+        totalMaxPointsNode.innerText = "/ " + totalMaxPoints.toString()
+        totalLetterNode.innerText = getLetterGrade(totalStuPoints / totalMaxPoints)
+        totalPercentNode.innerText = percentGrade
+
+    }
+
+    function getLetterGrade(percent: number): string {
+        if (percent >= .97) { return "A+" }
+        else if (percent >= .93) { return "A" }
+        else if (percent >= .90) { return "A-" }
+        else if (percent >= .87) { return "B+" }
+        else if (percent >= .83) { return "B" }
+        else if (percent >= .80) { return "B-" }
+        else if (percent >= .77) { return "C+" }
+        else if (percent >= .73) { return "C" }
+        else if (percent >= .70) { return "C-" }
+        else if (percent >= .67) { return "D+" }
+        else if (percent >= .60) { return "D" }
+        else { return "F" }
+    }
+
 
     let assignmentDisplay
     let studentsDisplay
     if (classData) {
-        tdRefs.current = []
+        gradeRefs.current = []  // reset refs to prevent overlap on re-render
         assignmentDisplay = classData.assignments.map(asgn => {
             return (
                 <th key={asgn.assignment_id}>
@@ -104,22 +152,23 @@ export function ClassTable(props: ClassTableProps) {
                 </th>
             )
         })
-        studentsDisplay = classData.studentInfo.map(stu => {
+        studentsDisplay = classData.studentInfo.map((stu, stuIndex) => {
+            rowRefs.current = []  // reset refs to prevent overlap on re-render
             const gradesDisplay = stu.grades.map((grade, index) => {
                 const max_points = classData.assignments[index].max_points
-                function addTdRef(elem: HTMLTableCellElement) {
-                    if (elem) { tdRefs.current.push(elem) }
-                }
                 return (
                     <td
                         key={`${grade.assignment_id} ${stu.student_id}`}
-                        ref={addTdRef}
+                        ref={elem => {
+                            if (elem) { gradeRefs.current.push(elem) }
+                        }}
                     >
                         <span className="table-grade-cell">
                             <input
                                 type="text"
                                 data-assignment_id={grade.assignment_id}
                                 data-student_id={stu.student_id}
+                                data-rownum={stuIndex}
                                 defaultValue={grade.earned_points.toString()}
                                 className="table-cell-span-editable"
                                 tabIndex={grade.assignment_id * 100 + stu.student_id} // changes tab behavior to vertical
@@ -138,10 +187,29 @@ export function ClassTable(props: ClassTableProps) {
                     </td>
                 )
             })
+
+            // get initial render's total information
+            let totalStuPoints = 0
+            stu.grades.forEach(grade => totalStuPoints += grade.earned_points)
+
+            let totalMaxPoints = 0
+            classData.assignments.forEach(asgn => totalMaxPoints += asgn.max_points)
+
+            const percentGrade = (Math.round((totalStuPoints / totalMaxPoints) * 1000) / 10) + '%'
+            const letterGrade = getLetterGrade(totalStuPoints / totalMaxPoints)
+
             return (
-                <tr key={stu.student_id}>
+                <tr key={stu.student_id} ref={elem => {
+                    if (elem) { rowRefs.current.push(elem) }
+                }}>
                     <th>{stu.first_name} {stu.last_name}</th>
                     {gradesDisplay}
+                    <td>
+                        <span className="totals_earned">{totalStuPoints}</span>
+                        <span className="totals_max">/ {totalMaxPoints}</span>
+                        <span className="totals_letter">{letterGrade}</span>
+                        <span className="totals_percent">{percentGrade}</span>
+                    </td>
                 </tr>
             )
         })
@@ -155,8 +223,9 @@ export function ClassTable(props: ClassTableProps) {
         <table>
             <tbody>
                 <tr>
-                    <th>Assignments</th>
+                    <th></th>
                     {assignmentDisplay}
+                    <th>Total</th>
                 </tr>
                 {studentsDisplay}
             </tbody>
