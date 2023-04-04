@@ -62,5 +62,7 @@ contextBridge.exposeInMainWorld('grade', {
         ipcRenderer.invoke('db-grade-editGradePoints', student_id, assignment_id, earned_points),
     editGradeExempt: (student_id, assignment_id, is_exempt) => 
         ipcRenderer.invoke('db-grade-editGradeExempt', student_id, assignment_id, is_exempt),
+    applyBulkChanges: (changes) => 
+        ipcRenderer.invoke('db-grade-applyBulkChanges', changes),
 } as Window['grade'])
 

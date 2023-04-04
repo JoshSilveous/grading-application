@@ -7,6 +7,7 @@ interface ClassTableProps {
 export function ClassTable(props: ClassTableProps) {
 
     const [classData, setClassData] = React.useState<ClassData>(null)
+    const saveBtnRef = React.useRef()
     React.useEffect(() => {
         updateClassData()
     }, [props.class_id])
@@ -16,15 +17,36 @@ export function ClassTable(props: ClassTableProps) {
             .then(res => setClassData(res))
     }
 
-    function handleGradeChange(student_id: number, assignment_id: number, event: React.ChangeEvent<HTMLSpanElement>) {
-        const newGradeInt = parseInt(event.target.innerText)
-        if (isNaN(newGradeInt) || newGradeInt.toString() != event.target.innerText.trim()) {
-            event.target.innerText = event.target.id
-        } else {
-            event.target.innerText = newGradeInt.toString()
-            event.target.id = newGradeInt.toString()
-        }
+    
 
+    /*  When a grade is changed, state is NOT updated. This is meant to minimize re-renders, as well as
+        allow the user to back out of changes. This function will add the change to a `PendingChange[]` array,
+        and will only apply changes to the database when "Save" is pressed.
+    */
+    let pendingChanges: PendingChange[] = []
+    function handleGradeChange(
+        student_id: number, assignment_id: number, max_points: number, event: React.ChangeEvent<HTMLSpanElement>
+    ) {
+        const node = event.target
+        const newGradeInt = parseInt(node.innerText)
+        if (isNaN(newGradeInt) || newGradeInt.toString() != node.innerText.trim() || node.id === node.innerText) {
+            node.innerText = node.id
+        } else {
+            node.innerText = newGradeInt.toString()
+            node.id = newGradeInt.toString()
+            pendingChanges.push(
+                {student_id ,assignment_id, newEarnedPoints: newGradeInt}
+            )
+
+            // Update the percentage shown
+            node.nextElementSibling.innerHTML = `(${Math.round((newGradeInt / max_points) * 1000) / 10}%)`
+        }
+    }
+
+    function handleSave() {
+        if (pendingChanges.length !== 0) {
+            window.grade.applyBulkChanges(pendingChanges)
+        }
     }
 
     let assignmentDisplay
@@ -39,6 +61,7 @@ export function ClassTable(props: ClassTableProps) {
         })
         studentsDisplay = classData.studentInfo.map(stu => {
             const gradesDisplay = stu.grades.map((grade, index) => {
+                const max_points = classData.assignments[index].max_points
                 return (
                     <td key={`${grade.assignment_id} ${stu.student_id}`}>
                         <span className="table-grade-cell">
@@ -46,7 +69,7 @@ export function ClassTable(props: ClassTableProps) {
                                 contentEditable={true}
                                 tabIndex={grade.assignment_id * 100 + stu.student_id} // changes tab behavior to vertical
                                 id={grade.earned_points.toString()} // Used to store old value, in case new value is invalid
-                                onBlur={(e) => { handleGradeChange(stu.student_id, grade.assignment_id, e) }}
+                                onBlur={(e) => { handleGradeChange(stu.student_id, grade.assignment_id, max_points, e) }}
                                 onKeyDown={(e) => {
                                     if (e.key == "Enter") {
                                         e.preventDefault()
@@ -56,7 +79,7 @@ export function ClassTable(props: ClassTableProps) {
                             >
                                 {grade.earned_points.toString()}
                             </span>&nbsp;<span>
-                                ({grade.earned_points / classData.assignments[index].max_points})
+                                ({Math.round((grade.earned_points / max_points) * 1000 ) / 10}%)
                             </span>
                         </span>
                     </td>
@@ -71,7 +94,7 @@ export function ClassTable(props: ClassTableProps) {
         })
     }
 
-    return (<> {!classData ? <h2>Loading...</h2> :
+    return (<> {!classData ? <h2>Loading...</h2> : <>
         <table>
             <tbody>
                 <tr>
@@ -81,5 +104,6 @@ export function ClassTable(props: ClassTableProps) {
                 {studentsDisplay}
             </tbody>
         </table>
-    }</>)
+        <button onClick={handleSave} ref={saveBtnRef}>Save</button>
+    </>}</>)
 }

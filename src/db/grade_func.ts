@@ -19,7 +19,37 @@ function editGradeExempt(student_id: number, assignment_id: number, is_exempt: b
     db.exec(sql)
 }
 
+function applyBulkChanges(changes: PendingChange[]) {
+    console.log('t')
+    let sql = ``
+    changes.forEach(change => {
+        if (change.newEarnedPoints) {
+            sql += `
+                UPDATE Grade SET earned_points = ${change.newEarnedPoints} 
+                WHERE student_id = ${change.student_id}
+                AND assignment_id = ${change.assignment_id};
+            `
+        }
+        if (change.newIsExempt) {
+            sql += `
+                UPDATE Grade SET is_exempt = ${change.newIsExempt} 
+                WHERE student_id = ${change.student_id} 
+                AND assignment_id = ${change.assignment_id};
+            `
+        }
+    })
+    console.log(sql)
+    db.exec(sql)
+}
+
 declare global {
+    interface PendingChange {
+        student_id: number,
+        assignment_id: number,
+        newEarnedPoints?: number,
+        newIsExempt?: boolean
+    }
+
     interface grade_func_exports {
         /**
          * Change the points earned on an assignment for a student.
@@ -34,10 +64,16 @@ declare global {
          * @param assignment_id The ID of the assignment.
          * @param is_exempt Whether or not the grade is exempt.
          */
-        editGradeExempt: (student_id: number, assignment_id: number, is_exempt: boolean) => void
+        editGradeExempt: (student_id: number, assignment_id: number, is_exempt: boolean) => void,
+        /**
+         * Applies a series of changes to the database (specifically grades)
+         * @param changes An array of `pendingChange` objects describing the changes to make.
+         */
+        applyBulkChanges: (changes: PendingChange[]) => void
     }
 }
 export default {
     editGradePoints,
-    editGradeExempt
+    editGradeExempt,
+    applyBulkChanges
 } as grade_func_exports

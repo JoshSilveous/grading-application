@@ -64,6 +64,7 @@ export default {
      */
     grade: {
         editGradePoints: grade_func.editGradePoints,
-        editGradeExempt: grade_func.editGradeExempt
+        editGradeExempt: grade_func.editGradeExempt,
+        applyBulkChanges: grade_func.applyBulkChanges
     } as grade_func_exports
 }

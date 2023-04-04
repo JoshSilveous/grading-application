@@ -154,5 +154,9 @@ app.on('ready', () => {
         (e, student_id: number, assignment_id: number, is_exempt: boolean) => 
             db.grade.editGradeExempt(student_id, assignment_id, is_exempt)
     )
+    ipcMain.handle('db-grade-applyBulkChanges', 
+        (e, changes: PendingChange[]) => 
+            db.grade.applyBulkChanges(changes)
+    )
 
 })

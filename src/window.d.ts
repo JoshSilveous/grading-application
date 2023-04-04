@@ -209,6 +209,11 @@ interface Window {
          * @param assignment_id The ID of the assignment.
          * @param is_exempt Whether or not the grade is exempt.
          */
-        editGradeExempt: (student_id: number, assignment_id: number, is_exempt: boolean) => Promise<void>
+        editGradeExempt: (student_id: number, assignment_id: number, is_exempt: boolean) => Promise<void>,
+        /**
+         * Applies a series of changes to the database (specifically grades)
+         * @param changes An array of `pendingChange` objects describing the changes to make.
+         */
+        applyBulkChanges: (changes: PendingChange[]) => Promise<void>
     }
 }
