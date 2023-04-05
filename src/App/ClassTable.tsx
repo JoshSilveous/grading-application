@@ -30,7 +30,7 @@ export function ClassTable(props: ClassTableProps) {
     let pendingChanges: PendingChange[] = []
     function handleGradeChange(e: React.ChangeEvent<HTMLInputElement>) {
         const gradeNode = e.target.parentElement.parentElement
-        const percentNode = e.target.parentElement.lastChild as HTMLSpanElement
+        const percentNode = e.target.parentElement.childNodes[3] as HTMLSpanElement
         const inputNode = e.target.parentElement.firstChild as HTMLInputElement
         const newGradeInt = parseInt(inputNode.value)
         const student_id = parseInt(inputNode.dataset.student_id)
@@ -66,6 +66,30 @@ export function ClassTable(props: ClassTableProps) {
             updateTotal(rowNum)
         }
     }
+    function handleExemptChange(e: React.MouseEvent<HTMLSpanElement>) {
+        const spanNode = e.target as HTMLSpanElement
+        const student_id = parseInt(spanNode.dataset.student_id)
+        const assignment_id = parseInt(spanNode.dataset.assignment_id)
+        const rowNum = parseInt(spanNode.dataset.rownum)
+
+        console.log('student_id: ', student_id)
+        console.log('assignment_id: ', assignment_id)
+        console.log(spanNode.dataset)
+        if (spanNode.className === "exemptflag-disabled") {
+            spanNode.className = "exemptflag-enabled"
+            spanNode.innerText = "\u2691"
+            pendingChanges.push(
+                { student_id, assignment_id, newIsExempt: true }
+            )
+        } else {
+            spanNode.className = "exemptflag-disabled"
+            spanNode.innerText = "\u2690"
+            pendingChanges.push(
+                { student_id, assignment_id, newIsExempt: false }
+            )
+        }
+        updateTotal(rowNum)
+    }
 
     function handleSaveChanges() {
         if (pendingChanges.length !== 0) {
@@ -76,6 +100,8 @@ export function ClassTable(props: ClassTableProps) {
             allgradeNodes.forEach(gradeNode => {
                 gradeNode.classList.remove('unsaved-change')
             })
+
+            pendingChanges = []
         }
     }
 
@@ -84,7 +110,7 @@ export function ClassTable(props: ClassTableProps) {
 
             const allgradeNodes = gradeRefs.current
             allgradeNodes.forEach(gradeNode => {
-                const percentNode = gradeNode.childNodes[0].lastChild as HTMLSpanElement
+                const percentNode = gradeNode.childNodes[0].childNodes[3] as HTMLSpanElement
                 const inputNode = gradeNode.childNodes[0].firstChild as HTMLInputElement
                 const oldValue = parseInt(inputNode.defaultValue)
 
@@ -94,38 +120,50 @@ export function ClassTable(props: ClassTableProps) {
 
                 // Update the percentage shown
                 percentNode.innerText = Math.round((oldValue / maxPoints) * 1000) / 10 + '%'
+
+                pendingChanges = []
             })
+
         }
     }
 
-    function updateTotal(rownum: number) {
+    function updateTotal(rowNum: number) {
 
         let totalStuPoints: number = 0
         let totalMaxPoints: number = 0
 
-        const rowNodes = rowRefs.current[rownum].childNodes as NodeListOf<HTMLTableCellElement>
+        const rowNodes = rowRefs.current[rowNum].childNodes as NodeListOf<HTMLTableCellElement>
         rowNodes.forEach((node, index) => {
-            if (index !== 0 && index !== rowNodes.length - 1) {
-                let thisGradeNode = node.firstChild.firstChild as HTMLInputElement
-                totalStuPoints += parseInt(thisGradeNode.value)
 
-                let thisGradeMaxPoints = node.firstChild.childNodes[2].nodeValue
-                totalMaxPoints += parseInt(thisGradeMaxPoints)
+            if (index !== 0 && index !== rowNodes.length - 1) {
+                const isExemptNode = node.firstChild.childNodes[4] as HTMLSpanElement
+
+                if (isExemptNode.className === "exemptflag-disabled") {
+                    let thisGradeNode = node.firstChild.firstChild as HTMLInputElement
+                    totalStuPoints += parseInt(thisGradeNode.value)
+                    console.log('adding', parseInt(thisGradeNode.value), "to totalStuPoints, now", totalStuPoints)
+
+                    let thisGradeMaxPoints = node.firstChild.childNodes[2].nodeValue
+                    totalMaxPoints += parseInt(thisGradeMaxPoints)
+                    console.log('adding', parseInt(thisGradeMaxPoints), "to totalMaxPoints, now", totalMaxPoints)
+                }
             }
         })
+        console.log('final totalStuPoints:', totalStuPoints, "totalMaxPoints:", totalMaxPoints)
         const totalNode = rowNodes[rowNodes.length - 1]
         const totalStuPointsNode = totalNode.childNodes[0] as HTMLSpanElement
         const totalMaxPointsNode = totalNode.childNodes[1] as HTMLSpanElement
         const totalLetterNode = totalNode.childNodes[2] as HTMLSpanElement
         const totalPercentNode = totalNode.childNodes[3] as HTMLSpanElement
 
-        const percentGrade = (Math.round((totalStuPoints / totalMaxPoints) * 1000) / 10) + '%'
+        const unformattedPercentGrade = totalMaxPoints === 0 ? 1 : totalStuPoints / totalMaxPoints
+        const formattedPercentGrade = totalMaxPoints === 0 ? '100%' :
+            (Math.round(unformattedPercentGrade * 1000) / 10) + '%'
 
         totalStuPointsNode.innerText = totalStuPoints.toString()
         totalMaxPointsNode.innerText = "/ " + totalMaxPoints.toString()
-        totalLetterNode.innerText = getLetterGrade(totalStuPoints / totalMaxPoints)
-        totalPercentNode.innerText = percentGrade
-
+        totalLetterNode.innerText = getLetterGrade(unformattedPercentGrade)
+        totalPercentNode.innerText = formattedPercentGrade
     }
 
     function getLetterGrade(percent: number): string {
@@ -169,8 +207,8 @@ export function ClassTable(props: ClassTableProps) {
                         <span className="table-grade-cell">
                             <input
                                 type="text"
-                                data-assignment_id={grade.assignment_id}
-                                data-student_id={stu.student_id}
+                                data-assignment_id={grade.assignment_id.toString()}
+                                data-student_id={stu.student_id.toString()}
                                 data-rownum={stuIndex}
                                 data-previousvalidinput={grade.earned_points.toString()}
                                 defaultValue={grade.earned_points.toString()} // Used to store old value, in case new value is invalid
@@ -185,22 +223,48 @@ export function ClassTable(props: ClassTableProps) {
                                     }
                                 }}
                             />/ {max_points}<span className="table-cell-span-percentage">
-                                {Math.round((grade.earned_points / max_points) * 1000) / 10}%
+                                {max_points === 0 ? 100 :
+                                    Math.round((grade.earned_points / max_points) * 1000) / 10
+                                }%
                             </span>
+                            {grade.is_exempt ?
+                                <span
+                                    onClick={handleExemptChange}
+                                    className="exemptflag-enabled"
+                                    data-student_id={stu.student_id.toString()}
+                                    data-assignment_id={grade.assignment_id.toString()}
+                                    data-rownum={stuIndex}
+                                >{"\u2691"}</span> :
+                                <span
+                                    onClick={handleExemptChange}
+                                    className="exemptflag-disabled"
+                                    data-student_id={stu.student_id.toString()}
+                                    data-assignment_id={grade.assignment_id.toString()}
+                                    data-rownum={stuIndex}
+                                >{"\u2690"}</span>
+                            }
                         </span>
                     </td>
                 )
             })
 
-            // get initial render's total information
             let totalStuPoints = 0
-            stu.grades.forEach(grade => totalStuPoints += grade.earned_points)
+            stu.grades.forEach(grade => {
+                if (!grade.is_exempt) {
+                    totalStuPoints += grade.earned_points
+                }
+            })
 
             let totalMaxPoints = 0
-            classData.assignments.forEach(asgn => totalMaxPoints += asgn.max_points)
+            classData.assignments.forEach((asgn, asgnIndex) => {
+                if (!stu.grades[asgnIndex].is_exempt) {
+                    totalMaxPoints += asgn.max_points
+                }
+            })
+            const unformattedPercentGrade = totalMaxPoints === 0 ? 1 : totalStuPoints / totalMaxPoints
+            const formattedPercentGrade = (Math.round(unformattedPercentGrade * 1000) / 10) + '%'
 
-            const percentGrade = (Math.round((totalStuPoints / totalMaxPoints) * 1000) / 10) + '%'
-            const letterGrade = getLetterGrade(totalStuPoints / totalMaxPoints)
+            const letterGrade = getLetterGrade(unformattedPercentGrade)
 
             return (
                 <tr key={stu.student_id} ref={elem => {
@@ -212,10 +276,11 @@ export function ClassTable(props: ClassTableProps) {
                         <span className="totals_earned">{totalStuPoints}</span>
                         <span className="totals_max">/ {totalMaxPoints}</span>
                         <span className="totals_letter">{letterGrade}</span>
-                        <span className="totals_percent">{percentGrade}</span>
+                        <span className="totals_percent">{formattedPercentGrade}</span>
                     </td>
                 </tr>
             )
+
         })
     }
 
