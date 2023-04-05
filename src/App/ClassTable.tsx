@@ -40,9 +40,12 @@ export function ClassTable(props: ClassTableProps) {
 
         const maxPoints = parseInt(gradeNode.childNodes[0].childNodes[2].nodeValue)
 
-        if (isNaN(newGradeInt) || newGradeInt.toString() != inputNode.value.trim() || inputNode.id === inputNode.value) {
-            // reset value to original if invalid
-            inputNode.value = inputNode.id
+        if (isNaN(newGradeInt) ||
+            newGradeInt.toString() != inputNode.value.trim() ||
+            inputNode.dataset.previousvalidinput === inputNode.value
+        ) {
+            // reset value to previous valid input if invalid
+            inputNode.value = inputNode.dataset.previousvalidinput
 
         } else {
             if (inputNode.value !== inputNode.defaultValue) {
@@ -52,16 +55,16 @@ export function ClassTable(props: ClassTableProps) {
             }
 
             inputNode.value = newGradeInt.toString()
-            inputNode.id = newGradeInt.toString()
+            inputNode.dataset.previousvalidinput = newGradeInt.toString()
             pendingChanges.push(
                 { student_id, assignment_id, newEarnedPoints: newGradeInt }
             )
+            console.log(pendingChanges)
 
             // Update the percentage shown
             percentNode.innerText = Math.round((newGradeInt / maxPoints) * 1000) / 10 + '%'
             updateTotal(rowNum)
         }
-        console.log(rowRefs)
     }
 
     function handleSaveChanges() {
@@ -169,10 +172,11 @@ export function ClassTable(props: ClassTableProps) {
                                 data-assignment_id={grade.assignment_id}
                                 data-student_id={stu.student_id}
                                 data-rownum={stuIndex}
-                                defaultValue={grade.earned_points.toString()}
+                                data-previousvalidinput={grade.earned_points.toString()}
+                                defaultValue={grade.earned_points.toString()} // Used to store old value, in case new value is invalid
                                 className="table-cell-span-editable"
                                 tabIndex={grade.assignment_id * 100 + stu.student_id} // changes tab behavior to vertical
-                                id={grade.earned_points.toString()} // Used to store old value, in case new value is invalid
+                                id={grade.earned_points.toString()}
                                 onBlur={handleGradeChange}
                                 onKeyDown={(e) => {
                                     if (e.key == "Enter") {
@@ -204,7 +208,7 @@ export function ClassTable(props: ClassTableProps) {
                 }}>
                     <th>{stu.first_name} {stu.last_name}</th>
                     {gradesDisplay}
-                    <td>
+                    <td className="totals_container">
                         <span className="totals_earned">{totalStuPoints}</span>
                         <span className="totals_max">/ {totalMaxPoints}</span>
                         <span className="totals_letter">{letterGrade}</span>
