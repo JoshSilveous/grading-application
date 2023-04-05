@@ -20,17 +20,17 @@ function editGradeExempt(student_id: number, assignment_id: number, is_exempt: b
 }
 
 function applyBulkChanges(changes: PendingChange[]) {
-    console.log('t')
     let sql = ``
     changes.forEach(change => {
-        if (change.newEarnedPoints) {
+        if (change.newEarnedPoints !== undefined) {
             sql += `
                 UPDATE Grade SET earned_points = ${change.newEarnedPoints} 
                 WHERE student_id = ${change.student_id}
                 AND assignment_id = ${change.assignment_id};
             `
+            console.log('changing grade')
         }
-        if (change.newIsExempt) {
+        if (change.newIsExempt !== undefined) {
             sql += `
                 UPDATE Grade SET is_exempt = ${change.newIsExempt} 
                 WHERE student_id = ${change.student_id} 
