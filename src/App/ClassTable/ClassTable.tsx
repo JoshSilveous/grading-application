@@ -305,8 +305,13 @@ export function ClassTable(props: ClassTableProps) {
                 {studentsDisplay}
             </tbody>
         </table>
-        <button className="addstudent">Add Student</button>
-        <button onClick={handleSaveChanges} ref={saveBtnRef}>Save Changes</button>
-        <button onClick={handleUndoChanges} ref={undoBtnRef}>Undo Changes</button>
+        <button className="addstudent">
+            <span className="icon">+</span>
+            <span className="label">Add Student</span>
+        </button>
+        <div className="save_undo_container">
+            <button onClick={handleSaveChanges} ref={saveBtnRef}>Save Changes</button>
+            <button onClick={handleUndoChanges} ref={undoBtnRef}>Undo Changes</button>
+        </div>
     </>}</>)
 }

@@ -1,15 +1,19 @@
+@import '../../colors';
+
 .class_table {
-    background-color: var(--color4);
+    background-color: $color4;
     margin: 5px 0px;
 
     tbody {
+        color: $color2-text;
 
         th {
             text-align: left;
             padding: 5px 10px;
             min-width: 130px;
-            background-color: var(--color3);
-            color: #EFE7E7;
+            background-color: $color3;
+            color: $color3-text;
+            font-size: 16px;
 
             &.assignment,
             &.total,
@@ -18,13 +22,13 @@
                 transition: 0.15s ease background-color;
 
                 &:hover {
-                    background-color: var(--color2);
+                    background-color: $color2;
                 }
             }
         }
 
         td.grade_cell {
-            background-color: var(--color2);
+            background-color: $color2;
             padding: 5px 10px;
             font-size: 12px;
 
@@ -39,12 +43,14 @@
                     outline: 0px solid transparent;
                     transition: 0.1s ease background-color;
                     cursor: text;
-                    margin-right: 2px;
+                    margin-right: 5px;
+
+                    background-color: $color2-lighter;
+                    border-radius: 3px;
 
                     &:focus,
                     &:hover {
-                        background-color: #ddcbce;
-                        border-radius: 3px;
+                        background-color: $color2-lighter2;
                     }
                 }
 
@@ -78,12 +84,12 @@
             }
 
             &.pending_change {
-                box-shadow: inset 0 0 0 2px var(--color3);
+                box-shadow: inset 0 0 0 2px $color3;
             }
         }
 
         td.total_cell {
-            background-color: var(--color2);
+            background-color: $color2;
             padding: 5px 10px;
             font-size: 12px;
             display: flex;
@@ -114,21 +120,58 @@
             }
         }
 
-        td:hover>.grade_cell_content>.exempt_disabled {
-            color: black;
-        }
     }
 
 
 }
 
-.addstudent {
-    text-align: left;
+
+
+button {
+    font-size: 16px;
+    width: 154px;
+    font-weight: 700;
     padding: 5px 10px;
     height: 40px;
     cursor: pointer;
-    background-color: var(--color3);
-    border: 2px solid var(--color4);
+    background-color: $accent;
+    border: 2px solid $color4;
     border-radius: 5px;
-    color: #EFE7E7;
+    color: $accent-text;
+    transition: 0.2s ease background-color;
+
+    &>* {}
+
+
+    &:hover {
+        background-color: $accent-lighter;
+    }
+
+    &:active {
+        scale: 96%;
+    }
+
+    &>.icon {
+        font-size: 24px;
+    }
+
+    &>.label {
+        transform: translateY(1px)
+    }
+
+
+    &.addstudent {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-right: auto;
+    }
+}
+
+div.save_undo_container {
+    position: absolute;
+    display: flex;
+    flex-direction: row;
+    right: 5px;
+    bottom: 5px;
 }
