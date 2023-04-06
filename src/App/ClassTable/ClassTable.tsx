@@ -1,5 +1,5 @@
 import React from 'react'
-
+import './ClassTable.scss'
 interface ClassTableProps {
     class_id: number
 }
@@ -49,9 +49,9 @@ export function ClassTable(props: ClassTableProps) {
 
         } else {
             if (inputNode.value !== inputNode.defaultValue) {
-                gradeNode.classList.add('unsaved-change')
+                gradeNode.classList.add('pending_change')
             } else {
-                gradeNode.classList.remove('unsaved-change')
+                gradeNode.classList.remove('pending_change')
             }
 
             inputNode.value = newGradeInt.toString()
@@ -66,6 +66,7 @@ export function ClassTable(props: ClassTableProps) {
             updateTotal(rowNum)
         }
     }
+
     function handleExemptChange(e: React.MouseEvent<HTMLSpanElement>) {
         const spanNode = e.target as HTMLSpanElement
         const student_id = parseInt(spanNode.dataset.student_id)
@@ -75,14 +76,16 @@ export function ClassTable(props: ClassTableProps) {
         console.log('student_id: ', student_id)
         console.log('assignment_id: ', assignment_id)
         console.log(spanNode.dataset)
-        if (spanNode.className === "exemptflag-disabled") {
-            spanNode.className = "exemptflag-enabled"
+        if (spanNode.className === "exempt disabled") {
+            spanNode.className = "exempt enabled"
+            spanNode.title = "Remove Exemption"
             spanNode.innerText = "\u2691"
             pendingChanges.push(
                 { student_id, assignment_id, newIsExempt: true }
             )
         } else {
-            spanNode.className = "exemptflag-disabled"
+            spanNode.className = "exempt disabled"
+            spanNode.title = "Make Exempt"
             spanNode.innerText = "\u2690"
             pendingChanges.push(
                 { student_id, assignment_id, newIsExempt: false }
@@ -98,7 +101,7 @@ export function ClassTable(props: ClassTableProps) {
 
             const allgradeNodes = gradeRefs.current
             allgradeNodes.forEach(gradeNode => {
-                gradeNode.classList.remove('unsaved-change')
+                gradeNode.classList.remove('pending_change')
             })
 
             pendingChanges = []
@@ -114,7 +117,7 @@ export function ClassTable(props: ClassTableProps) {
                 const inputNode = gradeNode.childNodes[0].firstChild as HTMLInputElement
                 const oldValue = parseInt(inputNode.defaultValue)
 
-                gradeNode.classList.remove('unsaved-change')
+                gradeNode.classList.remove('pending_change')
                 const maxPoints = parseInt(gradeNode.childNodes[0].childNodes[2].nodeValue)
                 inputNode.value = inputNode.defaultValue
 
@@ -138,7 +141,7 @@ export function ClassTable(props: ClassTableProps) {
             if (index !== 0 && index !== rowNodes.length - 1) {
                 const isExemptNode = node.firstChild.childNodes[4] as HTMLSpanElement
 
-                if (isExemptNode.className === "exemptflag-disabled") {
+                if (isExemptNode.className === "exempt disabled") {
                     let thisGradeNode = node.firstChild.firstChild as HTMLInputElement
                     totalStuPoints += parseInt(thisGradeNode.value)
                     console.log('adding', parseInt(thisGradeNode.value), "to totalStuPoints, now", totalStuPoints)
@@ -188,7 +191,7 @@ export function ClassTable(props: ClassTableProps) {
         gradeRefs.current = []  // reset refs to prevent overlap on re-render
         assignmentDisplay = classData.assignments.map(asgn => {
             return (
-                <th key={asgn.assignment_id}>
+                <th key={asgn.assignment_id} className="assignment">
                     {asgn.name}
                 </th>
             )
@@ -199,12 +202,13 @@ export function ClassTable(props: ClassTableProps) {
                 const max_points = classData.assignments[index].max_points
                 return (
                     <td
+                        className="grade_cell"
                         key={`${grade.assignment_id} ${stu.student_id}`}
                         ref={elem => {
                             if (elem) { gradeRefs.current.push(elem) }
                         }}
                     >
-                        <span className="table-grade-cell">
+                        <span className="content_wrapper">
                             <input
                                 type="text"
                                 data-assignment_id={grade.assignment_id.toString()}
@@ -212,7 +216,7 @@ export function ClassTable(props: ClassTableProps) {
                                 data-rownum={stuIndex}
                                 data-previousvalidinput={grade.earned_points.toString()}
                                 defaultValue={grade.earned_points.toString()} // Used to store old value, in case new value is invalid
-                                className="table-cell-span-editable"
+                                className="grade_cell_content_input"
                                 tabIndex={grade.assignment_id * 100 + stu.student_id} // changes tab behavior to vertical
                                 id={grade.earned_points.toString()}
                                 onBlur={handleGradeChange}
@@ -222,7 +226,7 @@ export function ClassTable(props: ClassTableProps) {
                                         e.currentTarget.blur()
                                     }
                                 }}
-                            />/ {max_points}<span className="table-cell-span-percentage">
+                            />/ {max_points}<span className="percentage">
                                 {max_points === 0 ? 100 :
                                     Math.round((grade.earned_points / max_points) * 1000) / 10
                                 }%
@@ -230,14 +234,16 @@ export function ClassTable(props: ClassTableProps) {
                             {grade.is_exempt ?
                                 <span
                                     onClick={handleExemptChange}
-                                    className="exemptflag-enabled"
+                                    className="exempt enabled"
+                                    title="Remove Exemption"
                                     data-student_id={stu.student_id.toString()}
                                     data-assignment_id={grade.assignment_id.toString()}
                                     data-rownum={stuIndex}
                                 >{"\u2691"}</span> :
                                 <span
                                     onClick={handleExemptChange}
-                                    className="exemptflag-disabled"
+                                    className="exempt disabled"
+                                    title="Make Exempt"
                                     data-student_id={stu.student_id.toString()}
                                     data-assignment_id={grade.assignment_id.toString()}
                                     data-rownum={stuIndex}
@@ -270,13 +276,13 @@ export function ClassTable(props: ClassTableProps) {
                 <tr key={stu.student_id} ref={elem => {
                     if (elem) { rowRefs.current.push(elem) }
                 }}>
-                    <th>{stu.first_name} {stu.last_name}</th>
+                    <th className="studentname">{stu.first_name} {stu.last_name}</th>
                     {gradesDisplay}
-                    <td className="totals_container">
-                        <span className="totals_earned">{totalStuPoints}</span>
-                        <span className="totals_max">/ {totalMaxPoints}</span>
-                        <span className="totals_letter">{letterGrade}</span>
-                        <span className="totals_percent">{formattedPercentGrade}</span>
+                    <td className="total_cell">
+                        <span className="earned">{totalStuPoints}</span>
+                        <span className="max">/ {totalMaxPoints}</span>
+                        <span className="letter">{letterGrade}</span>
+                        <span className="percent">{formattedPercentGrade}</span>
                     </td>
                 </tr>
             )
@@ -289,16 +295,17 @@ export function ClassTable(props: ClassTableProps) {
 
 
     return (<> {!classData ? <h2>Loading...</h2> : <>
-        <table>
+        <table className="class_table">
             <tbody>
                 <tr>
-                    <th></th>
+                    <th className="corner"></th>
                     {assignmentDisplay}
-                    <th>Total</th>
+                    <th className="total">Total</th>
                 </tr>
                 {studentsDisplay}
             </tbody>
         </table>
+        <button className="addstudent">Add Student</button>
         <button onClick={handleSaveChanges} ref={saveBtnRef}>Save Changes</button>
         <button onClick={handleUndoChanges} ref={undoBtnRef}>Undo Changes</button>
     </>}</>)

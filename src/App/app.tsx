@@ -1,5 +1,5 @@
 import React from 'react'
-import { ClassTable } from './ClassTable'
+import { ClassTable } from './ClassTable/ClassTable'
 
 
 
@@ -18,14 +18,14 @@ export default function App() {
                 setCurrentClass(res[0].class_id)
                 setIsLoaded(true)
             })
-    },[])
+    }, [])
     let optionsDisplay
-    if(classList) {
+    if (classList) {
         optionsDisplay = classList.map(cls => {
             return (
-            <option value={cls.class_id} key={cls.class_id}>
-                {cls.name}
-            </option>
+                <option value={cls.class_id} key={cls.class_id}>
+                    {cls.name}
+                </option>
             )
         })
     }
