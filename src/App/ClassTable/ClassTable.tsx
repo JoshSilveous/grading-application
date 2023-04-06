@@ -1,5 +1,8 @@
 import React from 'react'
 import './ClassTable.scss'
+import popup from '../../Popup/popup'
+import FIXTHISIMPORT from '../StudentDirectory/AddNewStudent'
+
 interface ClassTableProps {
     class_id: number
 }
@@ -95,6 +98,7 @@ export function ClassTable(props: ClassTableProps) {
     }
 
     function handleSaveChanges() {
+
         if (pendingChanges.length !== 0) {
             window.grade.applyBulkChanges(pendingChanges)
             updateClassData()
@@ -110,7 +114,6 @@ export function ClassTable(props: ClassTableProps) {
 
     function handleUndoChanges() {
         if (pendingChanges.length !== 0) {
-
             const allgradeNodes = gradeRefs.current
             allgradeNodes.forEach(gradeNode => {
                 const percentNode = gradeNode.childNodes[0].childNodes[3] as HTMLSpanElement
@@ -127,6 +130,33 @@ export function ClassTable(props: ClassTableProps) {
                 pendingChanges = []
             })
 
+        }
+    }
+
+    function handleAddStudent() {
+        // if pendingChanges isn't empty, tell user to save changes first
+        if (pendingChanges.length !== 0) {
+            function handlePopupSaveChanges() {
+                handleSaveChanges()
+                popup.closePopup()
+                handleAddStudent()
+            }
+            function handlePopupUndoChanges() {
+                handleUndoChanges()
+                popup.closePopup()
+                handleAddStudent()
+            }
+            const popupContent =
+                <div className="save-changes-popup">You have changes still pending, would you like to
+                    <span className="save" onClick={handlePopupSaveChanges}> ✔ save </span>
+                    or
+                    <span className="undo" onClick={handlePopupUndoChanges}> ✖ undo </span>
+                    your changes?
+                </div>
+
+            popup.triggerPopup(popupContent, "warning")
+        } else {
+            popup.triggerPopup(FIXTHISIMPORT.newStudentPopupContent)
         }
     }
 
@@ -305,13 +335,20 @@ export function ClassTable(props: ClassTableProps) {
                 {studentsDisplay}
             </tbody>
         </table>
-        <button className="addstudent">
+        <button className="addstudent" onClick={handleAddStudent}>
             <span className="icon">+</span>
             <span className="label">Add Student</span>
         </button>
         <div className="save_undo_container">
-            <button onClick={handleSaveChanges} ref={saveBtnRef}>Save Changes</button>
-            <button onClick={handleUndoChanges} ref={undoBtnRef}>Undo Changes</button>
+            <button className="undo_changes" onClick={handleUndoChanges} ref={undoBtnRef}>
+                <span className="icon">✖</span>
+                <span className="label">Undo Changes</span>
+            </button>
+            <button className="save_changes" onClick={handleSaveChanges} ref={saveBtnRef}>
+                <span className="icon">✔</span>
+                <span className="label">Save Changes</span>
+            </button>
+
         </div>
     </>}</>)
 }
