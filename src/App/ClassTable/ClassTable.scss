@@ -1,0 +1,134 @@
+.class_table {
+    background-color: var(--color4);
+    margin: 5px 0px;
+
+    tbody {
+
+        th {
+            text-align: left;
+            padding: 5px 10px;
+            min-width: 130px;
+            background-color: var(--color3);
+            color: #EFE7E7;
+
+            &.assignment,
+            &.total,
+            &.studentname {
+                cursor: pointer;
+                transition: 0.15s ease background-color;
+
+                &:hover {
+                    background-color: var(--color2);
+                }
+            }
+        }
+
+        td.grade_cell {
+            background-color: var(--color2);
+            padding: 5px 10px;
+            font-size: 12px;
+
+
+            .content_wrapper {
+                input {
+                    background-color: transparent;
+                    font-size: 16px;
+                    border: none;
+                    padding: 2px 5px;
+                    width: 30px;
+                    outline: 0px solid transparent;
+                    transition: 0.1s ease background-color;
+                    cursor: text;
+                    margin-right: 2px;
+
+                    &:focus,
+                    &:hover {
+                        background-color: #ddcbce;
+                        border-radius: 3px;
+                    }
+                }
+
+                display: flex;
+                align-items: end;
+                position: relative;
+
+                .percentage {
+                    font-size: 16px;
+                    justify-self: flex-end;
+                    align-self: flex-end;
+                    margin-left: auto;
+                }
+
+                .exempt {
+                    position: absolute;
+                    right: -6px;
+                    top: -10px;
+                    cursor: pointer;
+                    user-select: none;
+
+                    &.disabled {
+                        color: transparent;
+
+                        @at-root tr>td.grade_cell:hover>.content_wrapper>.exempt.disabled {
+                            color: black;
+                        }
+
+                    }
+                }
+            }
+
+            &.pending_change {
+                box-shadow: inset 0 0 0 2px var(--color3);
+            }
+        }
+
+        td.total_cell {
+            background-color: var(--color2);
+            padding: 5px 10px;
+            font-size: 12px;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            width: 200px;
+            height: 30px;
+
+            .earned {
+                font-size: 16px;
+                width: 30px;
+                margin: 0px 2px 0px 0px;
+                padding: 2px 5px;
+            }
+
+            .max {
+                align-self: flex-end;
+                width: 60px;
+            }
+
+            .letter {
+                margin-right: auto;
+                font-size: 25px;
+            }
+
+            .percent {
+                font-size: 15px;
+            }
+        }
+
+        td:hover>.grade_cell_content>.exempt_disabled {
+            color: black;
+        }
+    }
+
+
+}
+
+.addstudent {
+    text-align: left;
+    padding: 5px 10px;
+    height: 40px;
+    cursor: pointer;
+    background-color: var(--color3);
+    border: 2px solid var(--color4);
+    border-radius: 5px;
+    color: #EFE7E7;
+}
