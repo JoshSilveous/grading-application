@@ -1,0 +1,39 @@
+@import '../../colors';
+
+.new_student_popup {
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+
+    h1 {
+        font-size: 20px;
+        text-align: center;
+    }
+
+
+    .field_container {
+        display: flex;
+        flex-direction: row;
+
+        input {
+            width: 150px;
+            margin: 4px;
+            border: 2px solid $background;
+            background-color: $color2-lighter;
+            border-radius: 8px;
+            padding: 5px;
+            outline: none;
+
+            &:hover,
+            &:focus {
+                background-color: $color2-lighter2;
+            }
+        }
+
+        label {
+            margin-right: 4px;
+            transform: translateY(5px);
+        }
+    }
+
+}
