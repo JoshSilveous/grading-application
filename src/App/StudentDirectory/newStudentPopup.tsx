@@ -22,7 +22,7 @@ function handleCreate(e: React.MouseEvent<HTMLButtonElement>) {
     const lastNameIsValid = validateName(inputLastNameValue)
     if (!firstNameIsValid || !lastNameIsValid) {
 
-        errorNode.innerText = 
+        errorNode.innerText =
             "Incorrect input detected. Each field must be less than 25 characters, and must not contain banned characters."
 
         if (!firstNameIsValid) {
@@ -43,18 +43,18 @@ function handleCreate(e: React.MouseEvent<HTMLButtonElement>) {
                 handleNewStudentIDfn(res)
             }
         })
-        
+
     }
-    
+
 
 }
 
 function validateName(input: string): boolean {
-    if ( input.trim().length === 0 ) { return false }
-    if ( input.length > 25 ) { return false }
+    if (input.trim().length === 0) { return false }
+    if (input.length > 25) { return false }
 
     const bannedCharacters = [';', '"', ':', '<', '>', '(', ')', '{', '}', '[', ']', '*', '%']
-    if ( bannedCharacters.some(char => input.includes(char)) ){ return false }
+    if (bannedCharacters.some(char => input.includes(char))) { return false }
 
     return true
 
@@ -70,11 +70,11 @@ function triggerNewStudentPopup(handleNewStudentID?: (student_id: number) => voi
             <p className='error_message'></p>
             <div className='field_container'>
                 <label htmlFor='first_name'>First Name:</label>
-                <input type='text' id='first_name'></input>
+                <input type='text' id='first_name' maxLength={25}></input>
             </div>
             <div className='field_container'>
                 <label htmlFor='last_name'>Last Name:</label>
-                <input type='text' id='last_name'></input>
+                <input type='text' id='last_name' maxLength={25}></input>
             </div>
             <button onClick={handleCreate}>Create</button>
         </div>
