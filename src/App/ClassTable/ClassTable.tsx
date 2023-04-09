@@ -156,7 +156,7 @@ export function ClassTable(props: ClassTableProps) {
 
             popup.triggerPopup(popupContent, "warning")
         } else {
-            FIXTHISIMPORT.triggerNewStudentPopup()
+            FIXTHISIMPORT.triggerNewStudentPopup(student_id => console.log('hello,', student_id))
         }
     }
 
