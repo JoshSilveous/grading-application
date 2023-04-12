@@ -1,5 +1,5 @@
 import React from 'react'
-import './newStudentPopup.scss'
+import './createStudentPopup.scss'
 import popup from '../../Popup/popup'
 
 
@@ -34,7 +34,7 @@ function trigger() {
                 <button onClick={handleCreate}>Create</button>
             </div>
 
-        popup.triggerPopup(content, null, () => reject("newStudentPopup closed by user"))
+        popup.triggerPopup(content, null, () => reject("createStudentPopup closed by user"))
  
         function handleCreate(e: React.MouseEvent<HTMLButtonElement>) {
             const buttonNode = e.target as HTMLButtonElement
@@ -79,7 +79,7 @@ function trigger() {
 
 declare global {
 
-    interface AddNewStudent_exports {
+    interface CreateNewStudent_exports {
     
         /**
          * Triggers a popup to create a new student, creates the student in the DB, and returns the new `student_id`.
@@ -90,7 +90,7 @@ declare global {
 }
 export default {
     trigger
-} as AddNewStudent_exports
+} as CreateNewStudent_exports
 
 // this should be structured so that trigger() returns the student_id instead as a promise.
 // add 25 char limit to input 
