@@ -1,7 +1,8 @@
 import React from 'react'
 import './ClassTable.scss'
 import popup from '../../Popup/popup'
-import newStudentPopup from '../StudentDirectory/newStudentPopup'
+import newStudentPopup from '../PopupLib/newStudentPopup'
+import newAssignmentPopup from '../PopupLib/newAssignmentPopup'
 
 interface ClassTableProps {
     class_id: number
@@ -68,6 +69,8 @@ export function ClassTable(props: ClassTableProps) {
             updateTotal(rowNum)
         }
     }
+    
+
 
     function handleExemptChange(e: React.MouseEvent<HTMLSpanElement>) {
         const spanNode = e.target as HTMLSpanElement
@@ -129,36 +132,64 @@ export function ClassTable(props: ClassTableProps) {
         }
     }
 
-    function handleAddStudent() {
-        // if pendingChanges isn't empty, tell user to save changes first
-        if (pendingChanges.length !== 0) {
-            function handlePopupSaveChanges() {
-                handleSaveChanges()
-                popup.closePopup()
-                handleAddStudent()
-            }
-            function handlePopupUndoChanges() {
-                handleUndoChanges()
-                popup.closePopup()
-                handleAddStudent()
-            }
-            const popupContent =
-                <div className="save-changes-popup">You have changes still pending, would you like to
-                    <span className="save" onClick={handlePopupSaveChanges}> ✔ save </span>
-                    or
-                    <span className="undo" onClick={handlePopupUndoChanges}> ✖ undo </span>
-                    your changes?
-                </div>
+    
+    async function handleAddStudent() {
+        try {
+            await promptSaveIfPendingChanges()
 
-            popup.triggerPopup(popupContent, "warning")
-        } else {
-            newStudentPopup.trigger()
-                .then(newStudentID => {
-                    window.enrollment.addEnrollment(props.class_id, newStudentID)
-                        .then (() => updateClassData())
-                })
-        }
+            let newStudentID = await newStudentPopup.trigger()
+            window.enrollment.addEnrollment(props.class_id, newStudentID)
+            updateClassData()
+
+            // function cancels if user closes out of a popup
+        } catch {return}     
     }
+    async function handleCreateAssignment() {
+        try {
+            await promptSaveIfPendingChanges()
+            await newAssignmentPopup.trigger(props.class_id)
+            updateClassData()
+            // create prompt for new assignment
+
+            // function cancels if user closes out of a popup
+        } catch {return}  
+    }
+
+
+    /**
+     * Resolves if user saves/undos changes, rejects if cancelled.
+     */
+    function promptSaveIfPendingChanges(): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+
+            // if pendingChanges isn't empty, tell user to save changes first
+            if (pendingChanges.length !== 0) {
+                function handlePopupSaveChanges() {
+                    handleSaveChanges()
+                    popup.closePopup()
+                    resolve()
+                }
+                function handlePopupUndoChanges() {
+                    handleUndoChanges()
+                    popup.closePopup()
+                    resolve()
+                }
+
+                const popupContent =
+                    <div className="save-changes-popup">You have changes still pending, would you like to
+                        <span className="save" onClick={handlePopupSaveChanges}> ✔ save </span>
+                        or
+                        <span className="undo" onClick={handlePopupUndoChanges}> ✖ undo </span>
+                        your changes?
+                    </div>
+
+                popup.triggerPopup(popupContent, "warning", () => reject())
+            } else {
+                resolve()
+            }
+        })
+    }
+    
 
     function updateTotal(rowNum: number) {
 
@@ -181,10 +212,10 @@ export function ClassTable(props: ClassTableProps) {
             }
         })
         const totalNode = rowNodes[rowNodes.length - 1]
-        const totalStuPointsNode = totalNode.childNodes[0] as HTMLSpanElement
-        const totalMaxPointsNode = totalNode.childNodes[1] as HTMLSpanElement
-        const totalLetterNode = totalNode.childNodes[2] as HTMLSpanElement
-        const totalPercentNode = totalNode.childNodes[3] as HTMLSpanElement
+        const totalStuPointsNode = totalNode.childNodes[0].childNodes[0] as HTMLSpanElement
+        const totalMaxPointsNode = totalNode.childNodes[0].childNodes[1] as HTMLSpanElement
+        const totalLetterNode = totalNode.childNodes[0].childNodes[2] as HTMLSpanElement
+        const totalPercentNode = totalNode.childNodes[0].childNodes[3] as HTMLSpanElement
 
         const unformattedPercentGrade = totalMaxPoints === 0 ? 1 : totalStuPoints / totalMaxPoints
         const formattedPercentGrade = totalMaxPoints === 0 ? '100%' :
@@ -334,10 +365,16 @@ export function ClassTable(props: ClassTableProps) {
                 {studentsDisplay}
             </tbody>
         </table>
+
         <button className="addstudent" onClick={handleAddStudent}>
             <span className="icon">+</span>
             <span className="label">Add Student</span>
         </button>
+        <button className="addassignment" onClick={handleCreateAssignment}>
+            <span className="icon">+</span>
+            <span className="label">Create Assignment</span>
+        </button>
+
         <div className="save_undo_container">
             <button className="undo_changes" onClick={handleUndoChanges} ref={undoBtnRef}>
                 <span className="icon">✖</span>
