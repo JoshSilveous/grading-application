@@ -5,9 +5,7 @@ import popup from '../../Popup/popup'
 
 
 
-function validateInput(input: string, maxLength: number): boolean {
-    if (input.trim().length === 0) { return false }
-    if (input.length > maxLength) { return false }
+function checkForBannedChars(input: string): boolean {
 
     const bannedCharacters = [';', '"', ':', '<', '>', '(', ')', '{', '}', '[', ']', '*', '%']
     if (bannedCharacters.some(char => input.includes(char))) { return false }
@@ -20,31 +18,37 @@ function trigger(class_id: number) {
     return new Promise<number>((resolve, reject) => {
 
         const content =
-            <div className='new_student_popup'>
+            <div className='new_assignment_popup'>
                 <h1>Create A New Assignment</h1>
                 <p className='error_message'></p>
 
                 <div className='field_container'>
-                    <label htmlFor='name'>Name:</label>
-                    <input type='text' id='name' maxLength={50}></input>
+                    <label htmlFor='name'>Assignment Name:</label>
+                    <input type='text' id='name' maxLength={50} />
                 </div>
                 <div className='field_container'>
-                    <label htmlFor='description'>Description:</label>
-                    <input type='text' id='description' maxLength={200}></input>
+                    <label htmlFor='description'>
+                        Description:<br />
+                        <span className="subtext">optional</span>
+                    </label>
+                    <textarea id='description' maxLength={200} onKeyDown={(e) => {
+                        if (e.key === 'Enter') {e.preventDefault()}
+                    }}/>
                 </div>
-                <div className='field_container'>
+                <div className='field_container radio'>
+                    <label className='fieldname'>Assignment Type:</label>
                     <label htmlFor='HOMEWORK'>Homework</label>
-                    <input type='radio' name='type' id='HOMEWORK'></input>
+                    <input type='radio' name='type' id='HOMEWORK' />
                     <label htmlFor='TEST'>Test</label>
-                    <input type='radio' name='type' id='TEST'></input>
+                    <input type='radio' name='type' id='TEST' />
                 </div>
-                <div className='field_container'>
+                <div className='field_container extra_credit'>
                     <label htmlFor='is_extra_credit'>Extra Credit:</label>
-                    <input type='checkbox' id='is_extra_credit'></input>
+                    <input type='checkbox' id='is_extra_credit' />
                 </div>
                 <div className='field_container'>
                     <label htmlFor='max_points'>Maximum Points:</label>
-                    <input type='number' id='max_points'></input>
+                    <input type='number' id='max_points' />
                 </div>
 
 
@@ -64,10 +68,10 @@ function trigger(class_id: number) {
             const inputDescriptionNode = buttonNode.parentElement.childNodes[3].childNodes[1] as HTMLInputElement
             const inputDescription: string = inputDescriptionNode.value
 
-            const inputTypeHomeworkNode = buttonNode.parentElement.childNodes[4].childNodes[1] as HTMLInputElement
+            const inputTypeHomeworkNode = buttonNode.parentElement.childNodes[4].childNodes[2] as HTMLInputElement
             const inputTypeIsHomework: boolean = inputTypeHomeworkNode.checked
 
-            const inputTypeTestNode = buttonNode.parentElement.childNodes[4].childNodes[3] as HTMLInputElement
+            const inputTypeTestNode = buttonNode.parentElement.childNodes[4].childNodes[4] as HTMLInputElement
             const inputTypeIsTest: boolean = inputTypeTestNode.checked
 
             const inputExtraCreditNode = buttonNode.parentElement.childNodes[5].childNodes[1] as HTMLInputElement
@@ -78,20 +82,35 @@ function trigger(class_id: number) {
 
 
 
-
+            let errorMsg = "Error(s) detected:"
             let errorFound = false
 
-            if (validateInput(inputName, 50) === false) {
+            const inputNameIsValid = checkForBannedChars(inputName)
+            const inputDescriptionIsValid = inputDescription.trim() === "" ? true : checkForBannedChars(inputDescription)
+            const inputTypeIsChosen = inputTypeIsHomework || inputTypeIsTest
+            const inputMaxPointsIsValid = !isNaN(inputMaxPoints)
+
+
+            if (inputName.trim().length === 0) {
+                errorMsg += "\nAssignment Name cannot be blank."
+                errorFound = true
+                inputNameNode.classList.add('error')
+            } else if (!inputNameIsValid) {
+                errorMsg += "\nAssignment Name cannot contain any of the following characters:\n;  :  <  >  (  )  {  }  [  ]  *  %"
                 errorFound = true
                 inputNameNode.classList.add('error')
             } else {inputNameNode.classList.remove('error')}
 
-            if (validateInput(inputDescription, 200) === false) {
+
+            if (!inputDescriptionIsValid) {
+                errorMsg += "\nDescription cannot contain any of the following characters:\n;  :  <  >  (  )  {  }  [  ]  *  %"
                 errorFound = true
                 inputDescriptionNode.classList.add('error')
             } else {inputDescriptionNode.classList.remove('error')}
 
-            if (!inputTypeIsHomework && !inputTypeIsTest) {
+
+            if (!inputTypeIsChosen) {
+                errorMsg += '\nYou must select either "Homework" or "Test"'
                 errorFound = true
                 inputTypeHomeworkNode.classList.add('error')
                 inputTypeTestNode.classList.add('error')
@@ -100,16 +119,20 @@ function trigger(class_id: number) {
                 inputTypeTestNode.classList.remove('error')
             }
 
-            if (isNaN(inputMaxPoints)) {
+            if (!inputMaxPointsIsValid) {
                 errorFound = true
                 inputMaxPointsNode.classList.add('error')
+                errorMsg += '\nYou must enter a value for Maximum Points'
             } else {
                 inputMaxPointsNode.classList.remove('error')
             }
 
 
-            if (errorFound === false) {
 
+
+            if (errorFound) {
+                errorNode.innerText = errorMsg
+            } else {
                 const inputType = inputTypeIsHomework ? "HOMEWORK" : "TEST"
 
                 window.assignment.createAssignment(
