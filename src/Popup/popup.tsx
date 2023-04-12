@@ -18,7 +18,7 @@ function triggerPopup(content: JSX.Element, specialType?: "warning", handleClose
                 <div className="popup-exit" 
                     onClick={() => {
                         closePopup()
-                        if (handleClose) {handleClose}
+                        if (handleClose) {handleClose()}
                     }}
                 >✖</div>
                 {content}
