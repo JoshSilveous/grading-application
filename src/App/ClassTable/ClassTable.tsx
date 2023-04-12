@@ -1,7 +1,7 @@
 import React from 'react'
 import './ClassTable.scss'
 import popup from '../../Popup/popup'
-import newStudentPopup from '../PopupLib/newStudentPopup'
+import addStudentPopup from '../PopupLib/addStudentPopup'
 import newAssignmentPopup from '../PopupLib/newAssignmentPopup'
 
 interface ClassTableProps {
@@ -136,8 +136,9 @@ export function ClassTable(props: ClassTableProps) {
     async function handleAddStudent() {
         try {
             await promptSaveIfPendingChanges()
+            
 
-            let newStudentID = await newStudentPopup.trigger()
+            let newStudentID = await addStudentPopup.trigger(props.class_id)
             window.enrollment.addEnrollment(props.class_id, newStudentID)
             updateClassData()
 
