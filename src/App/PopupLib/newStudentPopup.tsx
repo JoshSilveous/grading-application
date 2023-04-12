@@ -46,8 +46,6 @@ function trigger() {
             const inputFirstNameValue = inputFirstNameNode.value
             const inputLastNameValue = inputLastNameNode.value
         
-            console.log(validateName(inputFirstNameValue))
-            console.log(inputFirstNameValue)
         
         
             const firstNameIsValid = validateName(inputFirstNameValue)
@@ -70,8 +68,8 @@ function trigger() {
                 }
             } else {
                 popup.closePopup()
-                window.student.createStudent(inputFirstNameValue, inputLastNameValue).then(res => {
-                    resolve(res)
+                window.student.createStudent(inputFirstNameValue, inputLastNameValue).then(newStudentID => {
+                    resolve(newStudentID)
                 })
             }
         }
