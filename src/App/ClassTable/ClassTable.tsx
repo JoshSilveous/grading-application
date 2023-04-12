@@ -1,7 +1,7 @@
 import React from 'react'
 import './ClassTable.scss'
 import popup from '../../Popup/popup'
-import FIXTHISIMPORT from '../StudentDirectory/newStudentPopup'
+import newStudentPopup from '../StudentDirectory/newStudentPopup'
 
 interface ClassTableProps {
     class_id: number
@@ -152,8 +152,11 @@ export function ClassTable(props: ClassTableProps) {
 
             popup.triggerPopup(popupContent, "warning")
         } else {
-            FIXTHISIMPORT.triggerNewStudentPopup()
-                .then(res => console.log('student created', res))
+            newStudentPopup.trigger()
+                .then(newStudentID => {
+                    window.enrollment.addEnrollment(props.class_id, newStudentID)
+                        .then (() => updateClassData())
+                })
         }
     }
 

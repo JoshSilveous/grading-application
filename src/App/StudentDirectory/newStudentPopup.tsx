@@ -16,7 +16,7 @@ function validateName(input: string): boolean {
 
 }
 
-function triggerNewStudentPopup() {
+function trigger() {
     return new Promise<number>((resolve, reject) => {
 
         const content =
@@ -79,18 +79,20 @@ function triggerNewStudentPopup() {
     })
 }
 
+declare global {
 
-interface AddNewStudent_exports {
-
-    /**
-     * Triggers a popup to create a new student, creates the student in the DB, and returns the new `student_id`.
-     * @returns A promise that resolves with the new student's ID, or `"newStudentPopup closed by user"` if closed without creating a new student.
-     */
-    triggerNewStudentPopup: () => Promise<number>
+    interface AddNewStudent_exports {
+    
+        /**
+         * Triggers a popup to create a new student, creates the student in the DB, and returns the new `student_id`.
+         * @returns A promise that resolves with the new student's ID, or `"newStudentPopup closed by user"` if closed without creating a new student.
+         */
+        trigger: () => Promise<number>
+    }
 }
 export default {
-    triggerNewStudentPopup
+    trigger
 } as AddNewStudent_exports
 
-// this should be structured so that triggerNewStudentPopup() returns the student_id instead as a promise.
+// this should be structured so that trigger() returns the student_id instead as a promise.
 // add 25 char limit to input 
