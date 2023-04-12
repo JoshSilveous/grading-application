@@ -122,15 +122,33 @@ function editClass(class_id: number, name: string, description: string): void {
 }
 
 function getStudentsNotInClass(class_id: number): StudentInfo[] {
-    const sql = `
-        SELECT student_id, first_name, last_name FROM Student
+    const sqlInClass = `
+        SELECT Student.student_id FROM Student
             INNER JOIN Enrollment
                 ON Student.student_id = Enrollment.student_id
-            WHERE class_id NOT ${class_id};
+            WHERE class_id = ${class_id};
     `
-    const stmt = db.prepare(sql)
-    const res = stmt.all()
-    return res
+    const stmtInClass = db.prepare(sqlInClass)
+    const resInClass = stmtInClass.all()
+    
+    let listOfStudentIDsInClass = ''
+
+    resInClass.forEach((stu, stuIndex) => {
+        if (stuIndex === 0) {
+            listOfStudentIDsInClass += stu.student_id
+        } else {
+            listOfStudentIDsInClass += "," + stu.student_id
+        }
+    })
+
+    const sqlNotInClass = `
+        SELECT Student.student_id, first_name, last_name FROM Student
+            WHERE student_id NOT IN (${listOfStudentIDsInClass});
+    `
+    const stmtNotInClass = db.prepare(sqlNotInClass)
+    const resNotInClass = stmtNotInClass.all()
+
+    return resNotInClass
 }
 
 
