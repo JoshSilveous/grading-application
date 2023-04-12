@@ -6,11 +6,11 @@ import popup from '../../Popup/popup'
 
 
 function validateName(input: string): boolean {
-    if ( input.trim().length === 0 ) { return false }
-    if ( input.length > 25 ) { return false }
+    if (input.trim().length === 0) { return false }
+    if (input.length > 25) { return false }
 
     const bannedCharacters = [';', '"', ':', '<', '>', '(', ')', '{', '}', '[', ']', '*', '%']
-    if ( bannedCharacters.some(char => input.includes(char)) ){ return false }
+    if (bannedCharacters.some(char => input.includes(char))) { return false }
 
     return true
 
