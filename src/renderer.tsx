@@ -32,6 +32,17 @@ import ReactDOM from "react-dom/client"
 import App from "./App/app";
 
 const root = ReactDOM.createRoot(document.getElementById('root'))
-root.render(
-    <App />
-)
+window.setup.dropTables()
+    .then(() => {
+        window.setup.generateTables()
+            .then(() => {
+                window.test.insertTestData()
+                    .then(() => {
+                        root.render(
+                            <App />
+                        )
+                    })
+            })
+    })
+
+
