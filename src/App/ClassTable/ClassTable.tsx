@@ -306,10 +306,12 @@ export function ClassTable(props: ClassTableProps) {
                     <th className="studentname">{stu.first_name} {stu.last_name}</th>
                     {gradesDisplay}
                     <td className="total_cell">
-                        <span className="earned">{totalStuPoints}</span>
-                        <span className="max">/ {totalMaxPoints}</span>
-                        <span className="letter">{letterGrade}</span>
-                        <span className="percent">{formattedPercentGrade}</span>
+                        <span className="content_wrapper">
+                            <span className="earned">{totalStuPoints}</span>
+                            <span className="max">/ {totalMaxPoints}</span>
+                            <span className="letter">{letterGrade}</span>
+                            <span className="percent">{formattedPercentGrade}</span>
+                        </span>
                     </td>
                 </tr>
             )

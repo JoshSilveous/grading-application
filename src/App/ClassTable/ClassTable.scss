@@ -11,6 +11,7 @@
             text-align: left;
             padding: 5px 10px;
             min-width: 130px;
+            max-width: 220px;
             background-color: $color3;
             color: $color3-text;
             font-size: 16px;
@@ -93,31 +94,34 @@
             background-color: $color2;
             padding: 5px 10px;
             font-size: 12px;
-            display: flex;
-            justify-content: flex-start;
-            align-items: center;
-            width: 200px;
-            height: 30px;
 
-            .earned {
-                font-size: 16px;
-                width: 30px;
-                margin: 0px 2px 0px 0px;
-                padding: 2px 5px;
-            }
 
-            .max {
-                align-self: flex-end;
-                width: 60px;
-            }
+            .content_wrapper {
+                display: flex;
+                justify-content: flex-start;
+                align-items: center;
+                width: 200px;
 
-            .letter {
-                margin-right: auto;
-                font-size: 25px;
-            }
+                .earned {
+                    font-size: 16px;
+                    width: 30px;
+                    margin: 0px 2px 0px 0px;
+                    padding: 2px 5px;
+                }
 
-            .percent {
-                font-size: 15px;
+                .max {
+                    align-self: flex-end;
+                    width: 60px;
+                }
+
+                .letter {
+                    margin-right: auto;
+                    font-size: 25px;
+                }
+
+                .percent {
+                    font-size: 15px;
+                }
             }
         }
 
@@ -125,7 +129,6 @@
 
 
 }
-
 
 
 button {
@@ -188,6 +191,7 @@ div.save_undo_container {
     }
 
 }
+
 
 div.save-changes-popup {
 
