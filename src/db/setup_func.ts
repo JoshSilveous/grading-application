@@ -12,7 +12,7 @@ function generateTables() {
         CREATE TABLE IF NOT EXISTS Assignment (
             assignment_id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT(50) NOT NULL,
-            description INTEGER,
+            description TEXT(200),
             assignment_type TEXT(8) NOT NULL,
             is_extra_credit INTEGER NOT NULL,
             max_points INTEGER NOT NULL,
