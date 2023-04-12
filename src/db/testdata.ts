@@ -242,6 +242,24 @@ function insertTestData() {
             (7,11,15,0);
 
         INSERT INTO Grade VALUES
+            (3,12,11,0);
+        INSERT INTO Grade VALUES
+            (4,12,12,0);
+        INSERT INTO Grade VALUES
+            (6,12,3,0);
+        INSERT INTO Grade VALUES
+            (7,12,15,0);
+
+        INSERT INTO Grade VALUES
+            (3,13,11,0);
+        INSERT INTO Grade VALUES
+            (4,13,12,0);
+        INSERT INTO Grade VALUES
+            (6,13,3,0);
+        INSERT INTO Grade VALUES
+            (7,13,15,0);
+
+        INSERT INTO Grade VALUES
             (3,14,11,0);
         INSERT INTO Grade VALUES
             (4,14,12,0);
@@ -258,6 +276,15 @@ function insertTestData() {
             (6,15,13,0);
         INSERT INTO Grade VALUES
             (7,15,13,0);
+        
+        INSERT INTO Grade VALUES
+            (3,16,20,0);
+        INSERT INTO Grade VALUES
+            (4,16,19,0);
+        INSERT INTO Grade VALUES
+            (6,16,13,0);
+        INSERT INTO Grade VALUES
+            (7,16,13,0);
 
     `
 
