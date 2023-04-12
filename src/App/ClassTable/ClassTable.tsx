@@ -62,7 +62,6 @@ export function ClassTable(props: ClassTableProps) {
             pendingChanges.push(
                 { student_id, assignment_id, newEarnedPoints: newGradeInt }
             )
-            console.log(pendingChanges)
 
             // Update the percentage shown
             percentNode.innerText = Math.round((newGradeInt / maxPoints) * 1000) / 10 + '%'
@@ -76,9 +75,6 @@ export function ClassTable(props: ClassTableProps) {
         const assignment_id = parseInt(spanNode.dataset.assignment_id)
         const rowNum = parseInt(spanNode.dataset.rownum)
 
-        console.log('student_id: ', student_id)
-        console.log('assignment_id: ', assignment_id)
-        console.log(spanNode.dataset)
         if (spanNode.className === "exempt disabled") {
             spanNode.className = "exempt enabled"
             spanNode.title = "Remove Exemption"
@@ -156,7 +152,8 @@ export function ClassTable(props: ClassTableProps) {
 
             popup.triggerPopup(popupContent, "warning")
         } else {
-            FIXTHISIMPORT.triggerNewStudentPopup(student_id => console.log('hello,', student_id))
+            FIXTHISIMPORT.triggerNewStudentPopup()
+                .then(res => console.log('student created', res))
         }
     }
 
@@ -174,15 +171,12 @@ export function ClassTable(props: ClassTableProps) {
                 if (isExemptNode.className === "exempt disabled") {
                     let thisGradeNode = node.firstChild.firstChild as HTMLInputElement
                     totalStuPoints += parseInt(thisGradeNode.value)
-                    console.log('adding', parseInt(thisGradeNode.value), "to totalStuPoints, now", totalStuPoints)
 
                     let thisGradeMaxPoints = node.firstChild.childNodes[2].nodeValue
                     totalMaxPoints += parseInt(thisGradeMaxPoints)
-                    console.log('adding', parseInt(thisGradeMaxPoints), "to totalMaxPoints, now", totalMaxPoints)
                 }
             }
         })
-        console.log('final totalStuPoints:', totalStuPoints, "totalMaxPoints:", totalMaxPoints)
         const totalNode = rowNodes[rowNodes.length - 1]
         const totalStuPointsNode = totalNode.childNodes[0] as HTMLSpanElement
         const totalMaxPointsNode = totalNode.childNodes[1] as HTMLSpanElement
