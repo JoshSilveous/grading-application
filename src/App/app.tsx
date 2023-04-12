@@ -1,5 +1,6 @@
 import React from 'react'
 import { ClassTable } from './ClassTable/ClassTable'
+import './app.scss'
 
 
 
@@ -36,12 +37,15 @@ export default function App() {
     }
 
     return (<>
-        {isLoaded ? <>
-            <select onChange={handleClassChange}>
-                {optionsDisplay}
-            </select>
-            <h2>currentClass: {currentClass}</h2>
+        {!isLoaded ? <h2>Loading...</h2> : <>
+            <div className='classinfo_container'>
+                <h2>Current Class: </h2>
+                <select onChange={handleClassChange}>
+                    {optionsDisplay}
+                </select>
+            </div>
+            
             <ClassTable class_id={currentClass} />
-        </> : <h2>Loading...</h2>}
+        </>}
     </>)
 }

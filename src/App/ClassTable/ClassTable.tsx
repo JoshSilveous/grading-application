@@ -13,8 +13,6 @@ export function ClassTable(props: ClassTableProps) {
     const [classData, setClassData] = React.useState<ClassData>(null)
     const gradeRefs = React.useRef<HTMLTableCellElement[]>([])
     const rowRefs = React.useRef<HTMLTableRowElement[]>([])
-    const saveBtnRef = React.useRef()
-    const undoBtnRef = React.useRef()
 
     React.useEffect(() => {
         updateClassData()
@@ -24,6 +22,17 @@ export function ClassTable(props: ClassTableProps) {
         window.class.getClassData(props.class_id)
             .then(res => setClassData(res))
     }
+
+
+    // Set the buttonContainer's width to equal the table's width, for a cleaner looking UI.
+    // Unfortunantly, couldn't find a way to do this is pure CSS.
+    const tableRef = React.useRef<HTMLTableElement>()
+    const buttonContainerRef = React.useRef<HTMLDivElement | null>()
+    React.useEffect(() => {
+        if (buttonContainerRef.current && tableRef.current) {
+            buttonContainerRef.current.style.width = tableRef.current.clientWidth.toString() + 'px'
+        }
+    }, [classData])
 
 
 
@@ -96,7 +105,20 @@ export function ClassTable(props: ClassTableProps) {
         updateTotal(rowNum)
     }
 
-    function handleSaveChanges() {
+    function handleSaveChanges(e?: React.MouseEvent<HTMLButtonElement>) {
+        
+        // lose focus on button after select/enter. Better visually, and still allows for keyboard control
+        if (e) {
+            let node = e.target as HTMLElement
+            if (node.className === "undo_changes") {
+                node = node as HTMLButtonElement
+            } else {
+                node = node.parentNode as HTMLButtonElement
+            }
+            node.blur()
+            console.log(node)
+        }
+
 
         if (pendingChanges.length !== 0) {
             window.grade.applyBulkChanges(pendingChanges)
@@ -111,7 +133,21 @@ export function ClassTable(props: ClassTableProps) {
         }
     }
 
-    function handleUndoChanges() {
+    function handleUndoChanges(e?: React.MouseEvent<HTMLButtonElement>) {
+
+        // lose focus on button after select/enter. Better visually, and still allows for keyboard control
+        if (e) {
+            let node = e.target as HTMLElement
+            if (node.className === "undo_changes") {
+                node = node as HTMLButtonElement
+            } else {
+                node = node.parentNode as HTMLButtonElement
+            }
+            node.blur()
+            console.log(node)
+        }
+
+
         if (pendingChanges.length !== 0) {
             const allgradeNodes = gradeRefs.current
             allgradeNodes.forEach(gradeNode => {
@@ -133,7 +169,8 @@ export function ClassTable(props: ClassTableProps) {
     }
 
     
-    async function handleAddStudent() {
+    async function handleAddStudent(e: React.MouseEvent<HTMLButtonElement>) {
+        e.preventDefault()
         try {
             await promptSaveIfPendingChanges()
             
@@ -145,7 +182,8 @@ export function ClassTable(props: ClassTableProps) {
             // function cancels if user closes out of a popup
         } catch {return}     
     }
-    async function handleCreateAssignment() {
+    async function handleCreateAssignment(e: React.MouseEvent<HTMLButtonElement>) {
+        e.preventDefault()
         try {
             await promptSaveIfPendingChanges()
             await newAssignmentPopup.trigger(props.class_id)
@@ -356,36 +394,40 @@ export function ClassTable(props: ClassTableProps) {
 
 
     return (<> {!classData ? <h2>Loading...</h2> : <>
-        <table className="class_table">
-            <tbody>
-                <tr>
-                    <th className="corner"></th>
-                    {assignmentDisplay}
-                    <th className="total">Total</th>
-                </tr>
-                {studentsDisplay}
-            </tbody>
-        </table>
+        <div className='classtable_wrap'>
+            <div className='tablewrap'>
+                <table className="class_table" ref={tableRef}>
+                    <tbody>
+                        <tr>
+                            <th className="corner"></th>
+                            {assignmentDisplay}
+                            <th className="total">Total</th>
+                        </tr>
+                        {studentsDisplay}
+                    </tbody>
+                </table>
+            </div>
 
-        <button className="addstudent" onClick={handleAddStudent}>
-            <span className="icon">+</span>
-            <span className="label">Add Student</span>
-        </button>
-        <button className="addassignment" onClick={handleCreateAssignment}>
-            <span className="icon">+</span>
-            <span className="label">Create Assignment</span>
-        </button>
+            <div className='button_container' ref={buttonContainerRef}
+            >
+                <button className="addstudent" onClick={handleAddStudent}>
+                    <span className="icon">+</span>
+                    <span className="label">Add Student</span>
+                </button>
+                <button className="addassignment" onClick={handleCreateAssignment}>
+                    <span className="icon">+</span>
+                    <span className="label">Create Assignment</span>
+                </button>
+                <button className="undo_changes" onClick={handleUndoChanges}>
+                    <span className="icon">✖</span>
+                    <span className="label">Undo Changes</span>
+                </button>
 
-        <div className="save_undo_container">
-            <button className="undo_changes" onClick={handleUndoChanges} ref={undoBtnRef}>
-                <span className="icon">✖</span>
-                <span className="label">Undo Changes</span>
-            </button>
-            <button className="save_changes" onClick={handleSaveChanges} ref={saveBtnRef}>
-                <span className="icon">✔</span>
-                <span className="label">Save Changes</span>
-            </button>
-
+                <button className="save_changes" onClick={handleSaveChanges}>
+                    <span className="icon">✔</span>
+                    <span className="label">Save Changes</span>
+                </button>
+            </div>
         </div>
     </>}</>)
 }

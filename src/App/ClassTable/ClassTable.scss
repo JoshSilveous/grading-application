@@ -1,5 +1,12 @@
 @import '../../colors';
 
+.tablewrap {
+    width: fit-content;
+    max-width: 100%;
+    overflow: auto;
+    max-height: calc(100vh - 200px)
+}
+
 .class_table {
     background-color: $color4;
     margin: 5px 0px;
@@ -131,66 +138,28 @@
 }
 
 
-button {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-right: auto;
-    padding: 5px 10px;
-    height: 40px;
-    outline: none;
-
-    background-color: $accent;
-    border: 2px solid $color4;
-    border-radius: 5px;
-    color: $accent-text;
-    cursor: pointer;
-
-    font-size: 16px;
-    font-weight: 700;
-
-    transition: 0.2s ease background-color;
-    transition: 0.2s ease scale;
-
-
-
-    &:hover,
-    &:focus {
-        background-color: $accent-lighter;
-        scale: 105%;
-    }
-
-    &:active {
-        scale: 96%;
-    }
-
-    &>.icon {
-        font-size: 24px;
-    }
-
-    &>.label {
-        transform: translateY(1px)
-    }
-
-    &.addstudent {
-        width: 154px;
-    }
-
-}
-
-
-div.save_undo_container {
-    position: absolute;
+.button_container {
     display: flex;
     flex-direction: row;
-    right: 5px;
-    bottom: 5px;
-
+    align-items: flex-start;
+    gap: 5px;
+    bottom: 20px;
+    position: sticky;
+    margin-top: 10px;
+    max-width: 100%;
+    
     &>* {
         width: 180px;
     }
 
+    .undo_changes {
+        margin-left: auto
+    }
+    button.addassignment {
+        width: 200px;
+    }
 }
+
 
 
 div.save-changes-popup {

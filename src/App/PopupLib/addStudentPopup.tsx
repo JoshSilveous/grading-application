@@ -31,7 +31,7 @@ async function trigger(class_id: number) {
                     <select>
                         {
                         studentOptions.map(stu => {return (
-                                <option value={stu.student_id}>
+                                <option key={stu.student_id} value={stu.student_id}>
                                     {stu.first_name} {stu.last_name}
                                 </option>
                         )})
@@ -41,7 +41,7 @@ async function trigger(class_id: number) {
                 </div>
                 
                 <h3>- or -</h3>
-                <button>Create a new Student</button>
+                <button onClick={handleCreateStudent}>Create a new Student</button>
             </div>
 
         popup.triggerPopup(content, null, () => reject("addStudentPopup closed by user"))
