@@ -14,6 +14,10 @@ function getClassData(class_id: number): ClassData {
     `
     const stmtAssignments = db.prepare(sqlAssignments)
     const retAssignments: AssignmentInfo[] = stmtAssignments.all()
+    const retAssignmentsAdj = retAssignments.map(asgn => {
+        return {...asgn, is_extra_credit: asgn.is_extra_credit ? true : false}
+    })
+    console.log(retAssignmentsAdj)
 
     // Create a list of assignment_id IN Class
     let listAssignments = ""
@@ -58,7 +62,7 @@ function getClassData(class_id: number): ClassData {
         id: class_id,
         name: retClassInfo.name,
         description: retClassInfo.description,
-        assignments: retAssignments,
+        assignments: retAssignmentsAdj,
         studentInfo: studentInfo
     } as ClassData
 

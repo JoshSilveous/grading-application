@@ -23,9 +23,13 @@ export function ClassTable(props: ClassTableProps) {
 
     function updateClassData() {
         window.class.getClassData(props.class_id)
-            .then(res => setClassData(res))
+            .then(res => {
+                console.log('updateClassData returned', res)
+                setClassData(res)
+            })
     }
-
+    console.log('re-rendered with classData', classData)
+    
 
     // Set the buttonContainer's width to equal the table's width, for a cleaner looking UI.
     // Unfortunantly, couldn't find a way to do this is pure CSS.
@@ -35,13 +39,9 @@ export function ClassTable(props: ClassTableProps) {
         if (buttonContainerRef.current && tableRef.current) {
             buttonContainerRef.current.style.width = tableRef.current.clientWidth.toString() + 'px'
         }
-
-        // fill out initial total values
-        return () => {
-            rowRefs.current.forEach(row => {
-                updateTotal(parseInt(row.dataset.rownum))
-            })
-        }
+        rowRefs.current.forEach(row => {
+            updateTotal(parseInt(row.dataset.rownum))
+        })
     }, [classData])
 
 
@@ -287,11 +287,15 @@ export function ClassTable(props: ClassTableProps) {
     
 
     function updateTotal(rowNum: number) {
-
         let totalStuPoints: number = 0
         let totalMaxPoints: number = 0
+        setTimeout(() => {
+
+            console.log('updateTotal ran with rowNum', rowNum, 'and classData', classData)
+        }, 2000)
 
         const rowNodes = rowRefs.current[rowNum].childNodes as NodeListOf<HTMLTableCellElement>
+        // add together all scores and maxPoints for each assignment
         rowNodes.forEach((node, index) => {
 
             if (index !== 0 && index !== rowNodes.length - 1) {
@@ -300,9 +304,12 @@ export function ClassTable(props: ClassTableProps) {
                 if (isExemptNode.className === "exempt disabled") {
                     let thisGradeNode = node.firstChild.firstChild as HTMLInputElement
                     totalStuPoints += parseInt(thisGradeNode.value)
+                    
+                    if (classData && !classData.assignments[index - 1].is_extra_credit) {
+                        let thisGradeMaxPoints = node.firstChild.childNodes[2].nodeValue
+                        totalMaxPoints += parseInt(thisGradeMaxPoints)
+                    }
 
-                    let thisGradeMaxPoints = node.firstChild.childNodes[2].nodeValue
-                    totalMaxPoints += parseInt(thisGradeMaxPoints)
                 }
             }
         })
@@ -373,6 +380,7 @@ export function ClassTable(props: ClassTableProps) {
                     return (
                         <td
                             className="grade_cell"
+                            data-assignment_id={grade.assignment_id}
                             key={`${grade.assignment_id} ${stu.student_id}`}
                             ref={elem => {
                                 if (elem) { gradeRefs.current.push(elem) }
