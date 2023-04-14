@@ -1,0 +1,114 @@
+@import '../../colors';
+
+.new_class_popup {
+    display: flex;
+    flex-direction: column;
+    width: 454px;
+
+    h1 {
+        font-size: 20px;
+        text-align: center;
+    }
+
+    .error_message {
+        font-size: 12px;
+        text-align: center;
+        color: $error-text;
+        margin: 0 0 15px 0;
+    }
+
+    .field_container {
+        display: flex;
+        flex-direction: row;
+
+        input[type='text'], input[type='number'], textarea {
+            resize: none;
+            width: 300px;
+            margin: 4px;
+            border: 2px solid $background;
+            background-color: $color2-lighter;
+            border-radius: 8px;
+            padding: 5px;
+            outline: none;
+
+            &:hover,
+            &:focus {
+                background-color: $color2-lighter2;
+            }
+            &.error {
+                border: 2px solid $error-border;
+                background-color: $error-fill;
+            }
+        }
+        textarea { 
+            height: 100px;
+            font-family: Arial, Helvetica, sans-serif
+        }
+
+        label {
+            margin-right: 6px;
+            width: 140px;
+            transform: translateY(5px);
+            line-height: 16px;
+
+            .subtext {
+                font-size: 12px;
+                font-style:italic;
+            }
+        }
+
+        &.radio {
+            margin-top: 10px;
+            
+            label {
+                width: fit-content;
+                transform: none;
+
+
+                &.fieldname {
+                    margin-right: 6px;
+                    width: 140px;
+                    transform: translateY(-1px);
+                }
+                &[for='TEST'] {
+                    margin-left: 65px;
+                }
+            }
+
+            input {
+                scale: 150%;
+                cursor: pointer;
+                outline: 2px red;
+
+                &.error::before {
+                    content: "";
+                    display: inline-block;
+                    width: 16px;
+                    height: 16px;
+                    transform: translate(-1.6px,-1.6px);
+                    background-color: #ff000054;
+                    border-radius: 50%;
+                }
+            }
+        }
+
+        &.extra_credit {
+            margin-top: 15px;
+            margin-bottom: 10px;
+
+            label {
+                transform: translateY(-1px);
+            }
+
+            input {
+                scale: 150%;
+                cursor: pointer;
+            }
+        }
+    }
+
+    button {
+        margin: 10px auto 0px auto;
+    }
+
+}
