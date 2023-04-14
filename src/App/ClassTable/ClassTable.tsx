@@ -3,14 +3,17 @@ import './ClassTable.scss'
 import popup from '../../Popup/popup'
 import addStudentPopup from '../PopupLib/addStudentPopup'
 import newAssignmentPopup from '../PopupLib/newAssignmentPopup'
+import editAssignmentPopup from '../PopupLib/editAssignmentPopup'
 
 interface ClassTableProps {
     class_id: number
 }
 
+
 export function ClassTable(props: ClassTableProps) {
 
     const [classData, setClassData] = React.useState<ClassData>(null)
+    const [asgnViewType, setAsgnViewType] = React.useState<"BOTH" | "HOMEWORK" | "TEST">("BOTH")
     const gradeRefs = React.useRef<HTMLTableCellElement[]>([])
     const rowRefs = React.useRef<HTMLTableRowElement[]>([])
 
@@ -90,7 +93,16 @@ export function ClassTable(props: ClassTableProps) {
         }
     }
     
+    function handleAsgnViewChange(e: React.ChangeEvent<HTMLSelectElement>) {
+        setAsgnViewType(e.target.value as "BOTH" | "HOMEWORK" | "TEST")
+    }
 
+    async function openAsgnSettings(assignment_id: number) {
+        try {
+            await editAssignmentPopup.trigger(assignment_id)
+            updateClassData()
+        } catch {return}
+    }
 
     function handleExemptChange(e: React.MouseEvent<HTMLSpanElement>) {
         const spanNode = e.target as HTMLSpanElement
@@ -100,7 +112,6 @@ export function ClassTable(props: ClassTableProps) {
         const rowNum = parseInt(spanNode.dataset.rownum)
         const siblingInputNode = spanNode.parentNode.childNodes[0] as HTMLInputElement
 
-        console.log(gradeNode)
 
         if (spanNode.className === "exempt disabled") {
 
@@ -163,7 +174,6 @@ export function ClassTable(props: ClassTableProps) {
                 node = node.parentNode as HTMLButtonElement
             }
             node.blur()
-            console.log(node)
         }
 
 
@@ -191,7 +201,6 @@ export function ClassTable(props: ClassTableProps) {
                 node = node.parentNode as HTMLButtonElement
             }
             node.blur()
-            console.log(node)
         }
 
 
@@ -217,7 +226,7 @@ export function ClassTable(props: ClassTableProps) {
 
     
     async function handleAddStudent(e: React.MouseEvent<HTMLButtonElement>) {
-        e.preventDefault()
+        e.preventDefault() 
         try {
             await promptSaveIfPendingChanges()
             
@@ -332,77 +341,90 @@ export function ClassTable(props: ClassTableProps) {
 
     let assignmentDisplay
     let studentsDisplay
-    console.log('')
-    console.log('')
-    console.log('new class', props.class_id)
-    console.log(classData)
     if (classData) {
         gradeRefs.current = []  // reset refs to prevent overlap on re-render
         assignmentDisplay = classData.assignments.map(asgn => {
-            return (
-                <th key={asgn.assignment_id} className="assignment">
-                    {asgn.name}
-                </th>
-            )
+            if (asgnViewType === asgn.assignment_type || asgnViewType === "BOTH") {
+                return (
+                    <th 
+                        data-assignment_id={asgn.assignment_id}
+                        key={asgn.assignment_id} 
+                        className="assignment"
+                        title={asgn.description}
+                        onClick={() => openAsgnSettings(asgn.assignment_id)}
+                    >
+                        <div className="content">
+                            <h3>{asgn.name}</h3>
+                            <span className="attributes">
+                                <h4>{asgn.is_extra_credit ? "EXTRA CREDIT" : ""}</h4>
+                                <h4>{asgn.assignment_type}</h4>
+                            </span>
+                        </div>
+                    </th>
+                )
+            } else {return}
         })
         studentsDisplay = classData.studentInfo.map((stu, stuIndex) => {
             rowRefs.current = []  // reset refs to prevent overlap on re-render
             const gradesDisplay = stu.grades.map((grade, index) => {
                 const max_points = classData.assignments[index].max_points
-                return (
-                    <td
-                        className="grade_cell"
-                        key={`${grade.assignment_id} ${stu.student_id}`}
-                        ref={elem => {
-                            if (elem) { gradeRefs.current.push(elem) }
-                        }}
-                    >
-                        <span className="content_wrapper">
-                            <input
-                                type="text"
-                                data-assignment_id={grade.assignment_id.toString()}
-                                data-student_id={stu.student_id.toString()}
-                                data-rownum={stuIndex}
-                                data-previousvalidinput={grade.earned_points.toString()}
-                                defaultValue={grade.earned_points.toString()} // Used to store old value, in case new value is invalid
-                                className="grade_cell_content_input"
-                                tabIndex={grade.assignment_id * 100 + stu.student_id} // changes tab behavior to vertical
-                                id={grade.earned_points.toString()}
-                                onBlur={handleGradeChange}
-                                onKeyDown={(e) => {
-                                    if (e.key == "Enter") {
-                                        e.preventDefault()
-                                        e.currentTarget.blur()
-                                    }
-                                }}
-                            />/ {max_points}<span className="percentage">
-                                {max_points === 0 ? 100 :
-                                    Math.round((grade.earned_points / max_points) * 1000) / 10
-                                }%
+                const assignment_type = classData.assignments[index].assignment_type
+                if (asgnViewType === assignment_type || asgnViewType === "BOTH") {
+                    return (
+                        <td
+                            className="grade_cell"
+                            key={`${grade.assignment_id} ${stu.student_id}`}
+                            ref={elem => {
+                                if (elem) { gradeRefs.current.push(elem) }
+                            }}
+                        >
+                            <span className="content_wrapper">
+                                <input
+                                    type="text"
+                                    data-assignment_id={grade.assignment_id.toString()}
+                                    data-student_id={stu.student_id.toString()}
+                                    data-rownum={stuIndex}
+                                    data-previousvalidinput={grade.earned_points.toString()}
+                                    defaultValue={grade.earned_points.toString()} // Used to store old value, in case new value is invalid
+                                    className="grade_cell_content_input"
+                                    tabIndex={grade.assignment_id * 100 + stu.student_id} // changes tab behavior to vertical
+                                    id={grade.earned_points.toString()}
+                                    onBlur={handleGradeChange}
+                                    onKeyDown={(e) => {
+                                        if (e.key == "Enter") {
+                                            e.preventDefault()
+                                            e.currentTarget.blur()
+                                        }
+                                    }}
+                                />/ {max_points}<span className="percentage">
+                                    {max_points === 0 ? 100 :
+                                        Math.round((grade.earned_points / max_points) * 1000) / 10
+                                    }%
+                                </span>
+                                {grade.is_exempt ?
+                                    <span
+                                        onClick={handleExemptChange}
+                                        data-defaultstatus="enabled"
+                                        className="exempt enabled"
+                                        title="Remove Exemption"
+                                        data-student_id={stu.student_id.toString()}
+                                        data-assignment_id={grade.assignment_id.toString()}
+                                        data-rownum={stuIndex}
+                                    >{"\u2691"}</span> :
+                                    <span
+                                        data-defaultstatus="disabled"
+                                        onClick={handleExemptChange}
+                                        className="exempt disabled"
+                                        title="Make Exempt"
+                                        data-student_id={stu.student_id.toString()}
+                                        data-assignment_id={grade.assignment_id.toString()}
+                                        data-rownum={stuIndex}
+                                    >{"\u2690"}</span>
+                                }
                             </span>
-                            {grade.is_exempt ?
-                                <span
-                                    onClick={handleExemptChange}
-                                    data-defaultstatus="enabled"
-                                    className="exempt enabled"
-                                    title="Remove Exemption"
-                                    data-student_id={stu.student_id.toString()}
-                                    data-assignment_id={grade.assignment_id.toString()}
-                                    data-rownum={stuIndex}
-                                >{"\u2691"}</span> :
-                                <span
-                                    data-defaultstatus="disabled"
-                                    onClick={handleExemptChange}
-                                    className="exempt disabled"
-                                    title="Make Exempt"
-                                    data-student_id={stu.student_id.toString()}
-                                    data-assignment_id={grade.assignment_id.toString()}
-                                    data-rownum={stuIndex}
-                                >{"\u2690"}</span>
-                            }
-                        </span>
-                    </td>
-                )
+                        </td>
+                    )
+                } else {return}
             })
             return (
                 <tr data-rownum={stuIndex} key={stu.student_id} ref={elem => {
@@ -425,16 +447,31 @@ export function ClassTable(props: ClassTableProps) {
     }
 
 
-
+    let tableIsEmpty = false
+    if (classData) {
+        if (classData.assignments.length === 0 && classData.studentInfo.length === 0) {
+            tableIsEmpty = true
+        }
+    }
 
 
     return (<> {!classData ? <h2>Loading...</h2> : <>
         <div className='classtable_wrap'>
-            <div className='tablewrap'>
+            <div 
+                className='tablewrap'
+                hidden={tableIsEmpty}
+            >
                 <table className="class_table" ref={tableRef}>
                     <tbody>
                         <tr>
-                            <th className="corner"></th>
+                            <th className="assignment_view">
+                                <h3>View Type</h3>
+                                <select onChange={handleAsgnViewChange}>
+                                    <option value="BOTH">Both</option>
+                                    <option value="HOMEWORK">Homework</option>
+                                    <option value="TEST">Test</option>
+                                </select>
+                            </th>
                             {assignmentDisplay}
                             <th className="total">Total</th>
                         </tr>
