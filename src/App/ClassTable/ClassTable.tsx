@@ -24,11 +24,9 @@ export function ClassTable(props: ClassTableProps) {
     function updateClassData() {
         window.class.getClassData(props.class_id)
             .then(res => {
-                console.log('updateClassData returned', res)
                 setClassData(res)
             })
     }
-    console.log('re-rendered with classData', classData)
     
 
     // Set the buttonContainer's width to equal the table's width, for a cleaner looking UI.
@@ -99,6 +97,7 @@ export function ClassTable(props: ClassTableProps) {
 
     async function openAsgnSettings(assignment_id: number) {
         try {
+            await promptSaveIfPendingChanges()
             await editAssignmentPopup.trigger(assignment_id)
             updateClassData()
         } catch {return}
@@ -289,10 +288,6 @@ export function ClassTable(props: ClassTableProps) {
     function updateTotal(rowNum: number) {
         let totalStuPoints: number = 0
         let totalMaxPoints: number = 0
-        setTimeout(() => {
-
-            console.log('updateTotal ran with rowNum', rowNum, 'and classData', classData)
-        }, 2000)
 
         const rowNodes = rowRefs.current[rowNum].childNodes as NodeListOf<HTMLTableCellElement>
         // add together all scores and maxPoints for each assignment
