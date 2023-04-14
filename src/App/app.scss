@@ -1,8 +1,25 @@
 .classinfo_container {
     display: flex;
     flex-direction: row;
+    align-items: center;
     
     h2 {
-        margin: 0px 10px 0px 0px;
+        margin: 0;
+        width: 170px;
+        flex-shrink: 0;
+    }
+    select {
+        height: 40px;
+        font-size: 14px;
+        max-width: 300px;
+        flex-shrink: 0;
+    }
+    p {
+        padding: 0px 10px;
+        flex-shrink: 1;
+    }
+    button {
+        flex-shrink: 0;
+        margin-left: 15px;
     }
 }

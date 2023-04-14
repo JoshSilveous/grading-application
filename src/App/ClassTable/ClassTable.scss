@@ -6,137 +6,189 @@
     overflow: auto;
     max-height: calc(100vh - 200px)
 }
+.classtable_wrap {
 
-.class_table {
-    background-color: $color4;
-    margin: 5px 0px;
-
-    tbody {
-        color: $color2-text;
-
-        th {
-            text-align: left;
-            padding: 5px 10px;
-            min-width: 130px;
-            max-width: 220px;
-            background-color: $color3;
-            color: $color3-text;
-            font-size: 16px;
-
-            &.assignment,
-            &.total,
-            &.studentname {
-                cursor: pointer;
-                transition: 0.15s ease background-color;
-
-                &:hover {
-                    background-color: $color2;
-                }
-            }
-        }
-
-        td.grade_cell {
-            background-color: $color2;
-            padding: 5px 10px;
-            font-size: 12px;
-
-
-            .content_wrapper {
-                input {
-                    background-color: transparent;
-                    font-size: 16px;
-                    border: none;
-                    padding: 2px 5px;
-                    width: 30px;
-                    outline: 0px solid transparent;
-                    transition: 0.1s ease background-color;
-                    cursor: text;
-                    margin-right: 5px;
-
-                    background-color: $color2-lighter;
-                    border-radius: 3px;
-
-                    &:focus,
-                    &:hover {
-                        background-color: $color2-lighter2;
-                    }
-                }
-
-                display: flex;
-                align-items: end;
-                position: relative;
-
-                .percentage {
-                    font-size: 16px;
-                    justify-self: flex-end;
-                    align-self: flex-end;
-                    margin-left: auto;
-                }
-
-                .exempt {
-                    position: absolute;
-                    right: -6px;
-                    top: -10px;
+    .class_table {
+        background-color: $color4;
+        margin: 5px 0px;
+    
+        tbody {
+            color: $color2-text;
+    
+    
+            th {
+                text-align: left;
+                padding: 5px 10px;
+                min-width: 130px;
+                max-width: 220px;
+                background-color: $color3;
+                color: $color3-text;
+                font-size: 16px;
+    
+                &.assignment,
+                &.total,
+                &.studentname {
                     cursor: pointer;
-                    user-select: none;
-
-                    &.disabled {
-                        color: transparent;
-
-                        // If user is hovering over the cell, and exempt is disabled, make it black instead of transparent.
-                        @at-root tr>td.grade_cell:hover>.content_wrapper>.exempt.disabled {
-                            color: black;
+                    transition: 0.15s ease background-color;
+    
+                    &:hover {
+                        background-color: $color2;
+                    }
+                }
+    
+                &.assignment_view {
+                    height: 100%;
+                    display:flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-direction: column;
+    
+                    h3 {
+                        margin: 0 0 5px 0;
+                    }
+                    select {
+                        width: 100%;
+                        height: 23px;
+                    }
+    
+                }
+                
+                &.assignment {
+                    min-width: 160px;
+                    .content {
+    
+                        h3 {
+                            margin: 0;
+                            height: 100%;
+                            overflow-wrap:break-word;
+                            hyphens: auto;
                         }
-
+                        .attributes {
+                            margin-top: auto;
+                            display: flex;
+                            justify-content: space-between;
+                            // gap: 20px;
+                            margin-top: auto;
+    
+                            h4 {
+                                bottom: 5px;
+                                right: 5px;
+                                margin: 0;
+                                font-size: 10px;
+                            }
+                        }
+                    }
+                    
+                }
+            }
+    
+            td.grade_cell {
+                background-color: $color2;
+                padding: 5px 10px;
+                font-size: 12px;
+    
+    
+                .content_wrapper {
+                    input {
+                        background-color: transparent;
+                        font-size: 16px;
+                        border: none;
+                        padding: 2px 5px;
+                        width: 30px;
+                        outline: 0px solid transparent;
+                        transition: 0.1s ease background-color;
+                        cursor: text;
+                        margin-right: 5px;
+    
+                        background-color: $color2-lighter;
+                        border-radius: 3px;
+    
+                        &:focus,
+                        &:hover {
+                            background-color: $color2-lighter2;
+                        }
+                    }
+    
+                    display: flex;
+                    align-items: end;
+                    position: relative;
+    
+                    .percentage {
+                        font-size: 16px;
+                        justify-self: flex-end;
+                        align-self: flex-end;
+                        margin-left: auto;
+                    }
+    
+                    .exempt {
+                        position: absolute;
+                        right: -6px;
+                        top: -10px;
+                        cursor: pointer;
+                        user-select: none;
+    
+                        &.disabled {
+                            color: transparent;
+    
+                            // If user is hovering over the cell, and exempt is disabled, make it black instead of transparent.
+                            @at-root tr>td.grade_cell:hover>.content_wrapper>.exempt.disabled {
+                                color: black;
+                            }
+    
+                        }
+                    }
+                }
+    
+                &.pending_change {
+                    box-shadow: inset 0 0 0 2px $color3;
+                }
+            }
+    
+            td.total_cell {
+                background-color: $color2;
+                padding: 5px 10px;
+                font-size: 12px;
+    
+    
+                .content_wrapper {
+                    display: flex;
+                    justify-content: flex-start;
+                    align-items: center;
+                    width: 200px;
+    
+                    .earned {
+                        font-size: 16px;
+                        width: 30px;
+                        margin: 0px 2px 0px 0px;
+                        padding: 2px 5px;
+                    }
+    
+                    .max {
+                        align-self: flex-end;
+                        width: 60px;
+                    }
+    
+                    .letter {
+                        margin-right: auto;
+                        font-size: 25px;
+                    }
+    
+                    .percent {
+                        font-size: 15px;
                     }
                 }
             }
-
-            &.pending_change {
-                box-shadow: inset 0 0 0 2px $color3;
-            }
+    
         }
-
-        td.total_cell {
-            background-color: $color2;
-            padding: 5px 10px;
-            font-size: 12px;
-
-
-            .content_wrapper {
-                display: flex;
-                justify-content: flex-start;
-                align-items: center;
-                width: 200px;
-
-                .earned {
-                    font-size: 16px;
-                    width: 30px;
-                    margin: 0px 2px 0px 0px;
-                    padding: 2px 5px;
-                }
-
-                .max {
-                    align-self: flex-end;
-                    width: 60px;
-                }
-
-                .letter {
-                    margin-right: auto;
-                    font-size: 25px;
-                }
-
-                .percent {
-                    font-size: 15px;
-                }
-            }
-        }
-
+    
+    
     }
-
-
+    
+    
+    .button_container {
+        min-width: 715px;
+    }
 }
-
 
 .button_container {
     display: flex;
@@ -159,8 +211,6 @@
         width: 200px;
     }
 }
-
-
 
 div.save-changes-popup {
 
