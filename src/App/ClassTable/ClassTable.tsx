@@ -27,7 +27,13 @@ export function ClassTable(props: ClassTableProps) {
                 setClassData(res)
             })
     }
-    
+
+    let tableIsEmpty = false
+    if (classData) {
+        if (classData.assignments.length === 0 && classData.studentInfo.length === 0) {
+            tableIsEmpty = true
+        }
+    }
 
     // Set the buttonContainer's width to equal the table's width, for a cleaner looking UI.
     // Unfortunantly, couldn't find a way to do this is pure CSS.
@@ -286,42 +292,44 @@ export function ClassTable(props: ClassTableProps) {
     
 
     function updateTotal(rowNum: number) {
-        let totalStuPoints: number = 0
-        let totalMaxPoints: number = 0
+        if (!tableIsEmpty) {
+            let totalStuPoints: number = 0
+            let totalMaxPoints: number = 0
 
-        const rowNodes = rowRefs.current[rowNum].childNodes as NodeListOf<HTMLTableCellElement>
-        // add together all scores and maxPoints for each assignment
-        rowNodes.forEach((node, index) => {
+            const rowNodes = rowRefs.current[rowNum].childNodes as NodeListOf<HTMLTableCellElement>
+            // add together all scores and maxPoints for each assignment
+            rowNodes.forEach((node, index) => {
 
-            if (index !== 0 && index !== rowNodes.length - 1) {
-                const isExemptNode = node.firstChild.childNodes[4] as HTMLSpanElement
+                if (index !== 0 && index !== rowNodes.length - 1) {
+                    const isExemptNode = node.firstChild.childNodes[4] as HTMLSpanElement
 
-                if (isExemptNode.className === "exempt disabled") {
-                    let thisGradeNode = node.firstChild.firstChild as HTMLInputElement
-                    totalStuPoints += parseInt(thisGradeNode.value)
-                    
-                    if (classData && !classData.assignments[index - 1].is_extra_credit) {
-                        let thisGradeMaxPoints = node.firstChild.childNodes[2].nodeValue
-                        totalMaxPoints += parseInt(thisGradeMaxPoints)
+                    if (isExemptNode.className === "exempt disabled") {
+                        let thisGradeNode = node.firstChild.firstChild as HTMLInputElement
+                        totalStuPoints += parseInt(thisGradeNode.value)
+                        
+                        if (classData && !classData.assignments[index - 1].is_extra_credit) {
+                            let thisGradeMaxPoints = node.firstChild.childNodes[2].nodeValue
+                            totalMaxPoints += parseInt(thisGradeMaxPoints)
+                        }
+
                     }
-
                 }
-            }
-        })
-        const totalNode = rowNodes[rowNodes.length - 1]
-        const totalStuPointsNode = totalNode.childNodes[0].childNodes[0] as HTMLSpanElement
-        const totalMaxPointsNode = totalNode.childNodes[0].childNodes[1] as HTMLSpanElement
-        const totalLetterNode = totalNode.childNodes[0].childNodes[2] as HTMLSpanElement
-        const totalPercentNode = totalNode.childNodes[0].childNodes[3] as HTMLSpanElement
+            })
+            const totalNode = rowNodes[rowNodes.length - 1]
+            const totalStuPointsNode = totalNode.childNodes[0].childNodes[0] as HTMLSpanElement
+            const totalMaxPointsNode = totalNode.childNodes[0].childNodes[1] as HTMLSpanElement
+            const totalLetterNode = totalNode.childNodes[0].childNodes[2] as HTMLSpanElement
+            const totalPercentNode = totalNode.childNodes[0].childNodes[3] as HTMLSpanElement
 
-        const unformattedPercentGrade = totalMaxPoints === 0 ? 1 : totalStuPoints / totalMaxPoints
-        const formattedPercentGrade = totalMaxPoints === 0 ? '100%' :
-            (Math.round(unformattedPercentGrade * 1000) / 10) + '%'
+            const unformattedPercentGrade = totalMaxPoints === 0 ? 1 : totalStuPoints / totalMaxPoints
+            const formattedPercentGrade = totalMaxPoints === 0 ? '100%' :
+                (Math.round(unformattedPercentGrade * 1000) / 10) + '%'
 
-        totalStuPointsNode.innerText = totalStuPoints.toString()
-        totalMaxPointsNode.innerText = "/ " + totalMaxPoints.toString()
-        totalLetterNode.innerText = getLetterGrade(unformattedPercentGrade)
-        totalPercentNode.innerText = formattedPercentGrade
+            totalStuPointsNode.innerText = totalStuPoints.toString()
+            totalMaxPointsNode.innerText = "/ " + totalMaxPoints.toString()
+            totalLetterNode.innerText = getLetterGrade(unformattedPercentGrade)
+            totalPercentNode.innerText = formattedPercentGrade
+        }
     }
     
 
@@ -341,9 +349,11 @@ export function ClassTable(props: ClassTableProps) {
     }
 
 
+    
+
     let assignmentDisplay
     let studentsDisplay
-    if (classData) {
+    if (classData && !tableIsEmpty) {
         gradeRefs.current = []  // reset refs to prevent overlap on re-render
         assignmentDisplay = classData.assignments.map(asgn => {
             if (asgnViewType === asgn.assignment_type || asgnViewType === "BOTH") {
@@ -450,12 +460,7 @@ export function ClassTable(props: ClassTableProps) {
     }
 
 
-    let tableIsEmpty = false
-    if (classData) {
-        if (classData.assignments.length === 0 && classData.studentInfo.length === 0) {
-            tableIsEmpty = true
-        }
-    }
+
 
 
     return (<> {!classData ? <h2>Loading...</h2> : <>
