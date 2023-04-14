@@ -2,6 +2,7 @@ import React from 'react'
 import { ClassTable } from './ClassTable/ClassTable'
 import './app.scss'
 import newClassPopup from './PopupLib/newClassPopup'
+import popup from '../Popup/popup'
 
 
 
@@ -53,7 +54,6 @@ export default function App() {
     function updateClassInfo(class_id: number) {
         window.class.getClassInfo(class_id)
                 .then(res => {
-                    console.log('UPDATING AT 1 with', currentClass)
                     setCurrentClassInfo(res)
                 })
     }
@@ -87,7 +87,6 @@ export default function App() {
                     
                     updateClassList().then(() => {
                         setCurrentClass(class_id)
-                        console.log('current', selectNode.value, 'new', class_id)
                         selectNode.value = class_id.toString()
                         setNewClassCreated(true)
                         updateClassInfo(class_id)
@@ -100,10 +99,28 @@ export default function App() {
     }
 
     function handleDelete() {
-        window.class.deleteClass(currentClass)
-            .then(() => {
-                updateClassList()
-            })
+        popup.triggerPopup(
+            <div className='delete_confirm'>
+                <h3>Are you sure you'd like to delete this class?</h3>
+                <div className='button_container'>
+                    <button onClick={handleDeny}>No, take me back</button>
+                    <button onClick={handleConfirm} className='delete'>Yes, delete</button>
+                </div>
+            </div>
+        , "warning")
+
+        function handleDeny() {
+            popup.closePopup()
+        }
+        function handleConfirm(){ 
+            window.class.deleteClass(currentClass)
+                .then(() => {
+                    popup.closePopup()
+                    selectRef.current.selectedIndex = 0
+                    updateClassList()
+                    setCurrentClass(parseInt(selectRef.current.value))
+                })
+        }
     }
     
     
@@ -111,12 +128,9 @@ export default function App() {
     // descriptionContent defaults to "" if not provided
     let descriptionContent = ""
     if (currentClassInfo) {
-        console.log('currentClassInfo found', currentClassInfo)
         if (currentClassInfo.description) {
-            console.log('currentClassInfo.description found', currentClassInfo.description)
             descriptionContent = currentClassInfo.description
         } else {
-            console.log('currentClassInfo.description not found', currentClassInfo.description)
             descriptionContent = ""
         }
     }
