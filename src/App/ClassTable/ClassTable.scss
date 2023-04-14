@@ -132,8 +132,9 @@
     
                             // If user is hovering over the cell, and exempt is disabled, make it black instead of transparent.
                             @at-root tr>td.grade_cell:hover>.content_wrapper>.exempt.disabled {
-                                color: black;
+                                color: black !important;
                             }
+                            
     
                         }
                     }
