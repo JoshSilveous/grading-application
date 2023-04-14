@@ -2,6 +2,10 @@
 // https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts
 import { contextBridge, ipcRenderer } from 'electron'
 
+contextBridge.exposeInMainWorld('app', {
+    closeApp: () => ipcRenderer.invoke('closeApp')
+} as Window['app'])
+
 contextBridge.exposeInMainWorld('api', {
     // An example of a function that uses the ipc context bridge.
     // The contextBridge.exposeInMainWorld will make these functions accessible to the renderer.

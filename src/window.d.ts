@@ -1,7 +1,14 @@
 interface Window {
+
     /**
-     * A user-defined API that carries functions over from preload.ts to the renderer.
+     * App-related functions
      */
+    app: {
+        /**
+         * Closes out of the app
+         */
+        closeApp: () => Promise<void>
+    }
     api: {
         /**
          * Returns an promise, then an object containing the class id, name, description, and student info.

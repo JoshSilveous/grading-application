@@ -67,6 +67,8 @@ function dbtest() {
 }
 
 app.on('ready', () => {
+    ipcMain.handle('closeApp', () => app.quit())
+
 	ipcMain.handle('dbtest', dbtest)
 
     ipcMain.handle('db-setup-generateTables', db.setup.generateTables)
