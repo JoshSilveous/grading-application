@@ -1,0 +1,35 @@
+@import '../../colors';
+
+.edit_enrollment_popup {
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+
+    button.delete {
+        color: $error-text;
+    }
+    h1 {
+        font-size: 20px;
+        text-align: center;
+    }
+
+}
+
+.delete_confirm {
+    button {
+        text-align: center;
+        display: block;
+
+        &.delete {
+            margin-left: auto;
+            color: $error-text;
+        }
+    }
+    p {
+        margin: 0;
+        color: rgb(151, 0, 0);
+    }
+    h3 {
+        margin: 0;
+    }
+}
