@@ -3,6 +3,7 @@ import { ClassTable } from './ClassTable/ClassTable'
 import './app.scss'
 import newClassPopup from './PopupLib/newClassPopup'
 import popup from '../Popup/popup'
+import studentManagerPopup from './PopupLib/studentManagerPopup'
 
 
 
@@ -135,6 +136,9 @@ export default function App() {
         }
     }
     
+    function handleStudentManager() {
+        studentManagerPopup.trigger()
+    }
 
     return (<>
         {!isLoaded ? <h2>Loading...</h2> : <>
@@ -146,6 +150,7 @@ export default function App() {
                 </select>
                 <p>{descriptionContent}</p> 
                 <button className='delete' onClick={handleDelete}>Delete Class</button>
+                <button className='student_manager' onClick={handleStudentManager}>Student Manager</button>
             </div>
             
             <ClassTable class_id={currentClass} />
