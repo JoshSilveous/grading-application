@@ -36,6 +36,7 @@ export default {
      * Contains functions for interacting with students in the database.
      */
     student: {
+        getStudentInfo: student_func.getStudentInfo,
         deleteStudent: student_func.deleteStudent,
         createStudent: student_func.createStudent,
         editStudent: student_func.editStudent,

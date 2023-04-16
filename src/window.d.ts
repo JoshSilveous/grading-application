@@ -95,6 +95,12 @@ interface Window {
      */
     student: {
         /**
+         * Get's an object containing the student's information.
+         * @param student_id The ID of the student.
+         * @returns object containing `student_id`, `first_name`, and `last_name`.
+         */
+        getStudentInfo: (student_id: number) => Promise<StudentInfo>,
+        /**
          * Removes a student from the database, including enrollments and grades.
          * @param student_id The ID of the student.
          */

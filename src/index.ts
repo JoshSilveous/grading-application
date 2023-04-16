@@ -90,6 +90,7 @@ app.on('ready', () => {
         (e, class_id: number) => db.class.getStudentsNotInClass(class_id)
     )
 
+    ipcMain.handle('db-student-getStudentInfo', (e, student_id: number) => db.student.getStudentInfo(student_id))
     ipcMain.handle('db-student-deleteStudent', (e, student_id: number) => db.student.deleteStudent(student_id))
     ipcMain.handle('db-student-createStudent', 
         (e, first_name: string, last_name: string) => db.student.createStudent(first_name, last_name)

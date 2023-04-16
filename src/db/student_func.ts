@@ -1,5 +1,16 @@
 import db from './db_bridge'
 
+function getStudentInfo(student_id: number): StudentInfo {
+    const sql = `
+        SELECT * FROM Student WHERE student_id = ${student_id};
+    `
+
+    const stmt = db.prepare(sql)
+    const res: StudentInfo[] = stmt.all()
+
+    return res[0]
+}
+
 function deleteStudent(student_id: number): void {
     const sql = `
         DELETE FROM Student
@@ -69,6 +80,12 @@ declare global {
     }
     interface student_func_exports {
         /**
+         * Get's an object containing the student's information.
+         * @param student_id The ID of the student.
+         * @returns object containing `student_id`, `first_name`, and `last_name`.
+         */
+        getStudentInfo: (student_id: number) => StudentInfo,
+        /**
          * Removes a student from the database, including enrollments and grades.
          * @param student_id The ID of the student.
          */
@@ -102,6 +119,7 @@ declare global {
 }
 
 export default {
+    getStudentInfo,
     deleteStudent,
     createStudent,
     editStudent,

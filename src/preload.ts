@@ -33,6 +33,7 @@ contextBridge.exposeInMainWorld('class', {
 } as Window['class'])
 
 contextBridge.exposeInMainWorld('student', {
+    getStudentInfo: (student_id) => ipcRenderer.invoke('db-student-getStudentInfo', student_id),
     deleteStudent: (student_id) => ipcRenderer.invoke('db-student-deleteStudent', student_id),
     createStudent: (first_name, last_name) => ipcRenderer.invoke('db-student-createStudent', first_name, last_name),
     editStudent: (student_id, first_name, last_name) => 
