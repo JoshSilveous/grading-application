@@ -1,3 +1,2 @@
 ## Todo
-- Get ExtraCredit working
-- Setup Student Manager
+- Review assignment to make sure all boxes are checked
