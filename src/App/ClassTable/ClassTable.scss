@@ -94,7 +94,7 @@
                         font-size: 16px;
                         border: none;
                         padding: 2px 5px;
-                        width: 30px;
+                        width: 50px;
                         outline: 0px solid transparent;
                         transition: 0.1s ease background-color;
                         cursor: text;
@@ -141,7 +141,8 @@
                 }
     
                 &.pending_change {
-                    box-shadow: inset 0 0 0 2px $color3;
+                    box-shadow: inset 0 0 0 2px $color3-darker;
+                    background-color: $color2-darker;
                 }
             }
     
@@ -210,6 +211,21 @@
     }
     button.addassignment {
         width: 200px;
+    }
+
+    button.pending_changes_animation {
+        scale: 105%;
+    }
+
+    button.disabled {
+        color: gray;
+        background-color: $accent-disabled;
+        cursor:not-allowed;
+
+        &:hover, &:focus {
+            scale: 100%;
+            background-color: $accent-disabled;
+        }
     }
 }
 

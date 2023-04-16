@@ -90,6 +90,13 @@ export function ClassTable(props: ClassTableProps) {
             pendingChanges.push(
                 { student_id, assignment_id, newEarnedPoints: newGradeInt }
             )
+            const undoBtn = buttonContainerRef.current.childNodes[2] as HTMLButtonElement
+            const saveBtn = buttonContainerRef.current.childNodes[3] as HTMLButtonElement
+
+            undoBtn.classList.remove('disabled')
+            saveBtn.classList.remove('disabled')
+
+            
 
             // Update the percentage shown
             percentNode.innerText = Math.round((newGradeInt / maxPoints) * 1000) / 10 + '%'
@@ -140,6 +147,13 @@ export function ClassTable(props: ClassTableProps) {
             pendingChanges.push(
                 { student_id, assignment_id, newIsExempt: true }
             )
+
+            const undoBtn = buttonContainerRef.current.childNodes[2] as HTMLButtonElement
+            const saveBtn = buttonContainerRef.current.childNodes[3] as HTMLButtonElement
+
+            undoBtn.classList.remove('disabled')
+            saveBtn.classList.remove('disabled')
+
         } else {
 
             // if this is a changed value
@@ -162,6 +176,12 @@ export function ClassTable(props: ClassTableProps) {
             pendingChanges.push(
                 { student_id, assignment_id, newIsExempt: false }
             )
+
+            const undoBtn = buttonContainerRef.current.childNodes[2] as HTMLButtonElement
+            const saveBtn = buttonContainerRef.current.childNodes[3] as HTMLButtonElement
+
+            undoBtn.classList.remove('disabled')
+            saveBtn.classList.remove('disabled')
         }
         updateTotal(rowNum)
 
@@ -189,9 +209,17 @@ export function ClassTable(props: ClassTableProps) {
             const allgradeNodes = gradeRefs.current
             allgradeNodes.forEach(gradeNode => {
                 gradeNode.classList.remove('pending_change')
+                
             })
+            
 
             pendingChanges = []
+            
+            const undoBtn = buttonContainerRef.current.childNodes[2] as HTMLButtonElement
+            const saveBtn = buttonContainerRef.current.childNodes[3] as HTMLButtonElement
+
+            undoBtn.classList.add('disabled')
+            saveBtn.classList.add('disabled')
         }
     }
 
@@ -224,6 +252,12 @@ export function ClassTable(props: ClassTableProps) {
                 percentNode.innerText = Math.round((oldValue / maxPoints) * 1000) / 10 + '%'
 
                 pendingChanges = []
+            
+                const undoBtn = buttonContainerRef.current.childNodes[2] as HTMLButtonElement
+                const saveBtn = buttonContainerRef.current.childNodes[3] as HTMLButtonElement
+    
+                undoBtn.classList.add('disabled')
+                saveBtn.classList.add('disabled')
             })
 
         }
@@ -393,7 +427,7 @@ export function ClassTable(props: ClassTableProps) {
                         >
                             <span className="content_wrapper">
                                 <input
-                                    type="text"
+                                    type="number"
                                     data-assignment_id={grade.assignment_id.toString()}
                                     data-student_id={stu.student_id.toString()}
                                     data-rownum={stuIndex}
@@ -498,12 +532,12 @@ export function ClassTable(props: ClassTableProps) {
                     <span className="icon">+</span>
                     <span className="label">Create Assignment</span>
                 </button>
-                <button className="undo_changes" onClick={handleUndoChanges}>
+                <button className="undo_changes disabled" onClick={handleUndoChanges}>
                     <span className="icon">✖</span>
                     <span className="label">Undo Changes</span>
                 </button>
 
-                <button className="save_changes" onClick={handleSaveChanges}>
+                <button className="save_changes disabled" onClick={handleSaveChanges}>
                     <span className="icon">✔</span>
                     <span className="label">Save Changes</span>
                 </button>
