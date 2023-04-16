@@ -2,6 +2,7 @@ import React from 'react'
 import './ClassTable.scss'
 import popup from '../../Popup/popup'
 import addStudentPopup from '../PopupLib/addStudentPopup'
+import editEnrollmentPopup from '../PopupLib/editEnrollmentPopup'
 import newAssignmentPopup from '../PopupLib/newAssignmentPopup'
 import editAssignmentPopup from '../PopupLib/editAssignmentPopup'
 
@@ -112,6 +113,14 @@ export function ClassTable(props: ClassTableProps) {
         try {
             await promptSaveIfPendingChanges()
             await editAssignmentPopup.trigger(assignment_id)
+            updateClassData()
+        } catch {return}
+    }
+    
+    async function handleStudentClick(student_id: number) {
+        try {
+            await promptSaveIfPendingChanges()
+            await editEnrollmentPopup.trigger(student_id, props.class_id)
             updateClassData()
         } catch {return}
     }
@@ -288,6 +297,7 @@ export function ClassTable(props: ClassTableProps) {
             // function cancels if user closes out of a popup
         } catch {return}  
     }
+    
 
 
     /**
@@ -477,7 +487,9 @@ export function ClassTable(props: ClassTableProps) {
                 <tr data-rownum={stuIndex} key={stu.student_id} ref={elem => {
                     if (elem) { rowRefs.current.push(elem) }
                 }}>
-                    <th className="studentname">{stu.first_name} {stu.last_name}</th>
+                    <th className="studentname" onClick={() => handleStudentClick(stu.student_id)}>
+                        {stu.first_name} {stu.last_name}
+                    </th>
                     {gradesDisplay}
                     <td className="total_cell">
                         <span className="content_wrapper">
