@@ -1,15 +1,16 @@
 {
-  "name": "electron-react-typescript-boiler",
-  "productName": "electron-react-typescript-boiler",
+  "name": "josh-silveous-grading-application",
+  "productName": "josh-silveous-grading-application",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "My CSET4250 Final Project",
   "main": ".webpack/main",
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
-    "lint": "eslint --ext .ts,.tsx ."
+    "lint": "eslint --ext .ts,.tsx .",
+    "postinstall": "electron-builder install-app-deps"
   },
   "keywords": [],
   "author": {
@@ -46,6 +47,7 @@
   },
   "dependencies": {
     "better-sqlite3": "^8.2.0",
+    "electron-builder": "^23.6.0",
     "electron-squirrel-startup": "^1.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
