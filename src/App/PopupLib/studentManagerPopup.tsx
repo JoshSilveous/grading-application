@@ -52,7 +52,7 @@ function trigger() {
                     <button onClick={handleCreateStudent}>Create New Student</button>
                 </div>
     
-            popup.triggerPopup(content, null, () => reject())
+            popup.triggerPopup(content, null, () => {resolve()})
         } catch {
             reject()
             return

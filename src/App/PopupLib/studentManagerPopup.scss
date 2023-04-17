@@ -1,13 +1,20 @@
 
 .student_manager_popup {
+    text-align: center;
     min-width: 400px;
+
+    & > button {
+        margin: 10px auto 0 auto
+    }
+
     .student_list {
-        min-width: 250px;
+        min-width: 300px;
         display: flex;
         flex-direction: column;
         max-height: 70vh;
         overflow-y: auto;
         overflow-x: hidden;
+
         .student {
             display: flex;
             align-items: center;
@@ -17,7 +24,7 @@
             }
 
             button {
-                margin-left: auto
+                margin-left: auto;
             }
         }
         hr {

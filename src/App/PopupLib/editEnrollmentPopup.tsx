@@ -23,8 +23,10 @@ function trigger(student_id: number, class_id: number) {
         const content =
             <div className='edit_enrollment_popup'>
                 <h1>Edit Enrollment</h1>
-                <button onClick={handleRemove} className='delete'>Remove From Class</button>
-                <button onClick={handleEdit}>Edit Student</button>
+                <div className='button_container'>
+                    <button onClick={handleRemove} className='delete'>Remove From Class</button>
+                    <button onClick={handleEdit}>Edit Student</button>
+                </div>
             </div>
 
         popup.triggerPopup(content, null, () => reject("editEnrollmentPopup closed by user"))
