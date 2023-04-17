@@ -17,7 +17,6 @@ function getClassData(class_id: number): ClassData {
     const retAssignmentsAdj = retAssignments.map(asgn => {
         return {...asgn, is_extra_credit: asgn.is_extra_credit ? true : false}
     })
-    console.log(retAssignmentsAdj)
 
     // Create a list of assignment_id IN Class
     let listAssignments = ""
