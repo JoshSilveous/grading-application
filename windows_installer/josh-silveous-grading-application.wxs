@@ -1,0 +1,585 @@
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" 
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+  <!-- http://wixtoolset.org/documentation/manual/v3/xsd/wix/product.html -->
+  <Product Id="1BCFCB10-C1D3-41D0-BB80-3956936F610F" 
+           UpgradeCode="c9ad23bd-fc3c-4f77-a485-e60e6ad7db1d"
+           Name = "Josh's Grading Application (Machine - MSI)"
+           Version="1.0.0.0"
+           Manufacturer="Joshua W Silveous Inc."
+           Language="1033">
+    <!-- Only run this installer on Windows 7 or up (or if it"s already installed, I guess) -->
+    <!-- <Condition Message="This application is only supported on Windows 7 or higher.">
+      <![CDATA[Installed OR (VersionNT >= 601)]]>
+    </Condition> -->
+    <!-- http://wixtoolset.org/documentation/manual/v3/xsd/wix/package.html -->
+    <Package InstallerVersion="405"
+             Compressed="yes"
+             Comments="Windows Installer Package"
+             Platform="x64"
+             InstallScope="perMachine"/>
+    <!-- Don't allow downgrades -->
+    <MajorUpgrade AllowSameVersionUpgrades="yes" DowngradeErrorMessage="A later version of this product is already installed. Setup will now exit."/>
+    <!-- This will hide our Uninstall entry in Apps & Features. We doing this so
+    we can write our own which we can better control. -->
+    <Property Id="ARPSYSTEMCOMPONENT" Value="1" />
+    <!-- While the MSI package is hidden in Apps & Features, it can still be queried
+    via PowerShell and other means. To differentiate we give the public entry a slightly
+    different name to make admins life easier.  -->
+    <Property Id="VisibleProductName" Value="Josh's Grading Application (Machine)" />
+    <!-- Tells the package to install perUser or perMachine. In case of perUser, all
+    files will be redirected to the user profile and all registry entries to HKCU. -->
+    <Property Id="MSIINSTALLPERUSER" Secure="yes" Value="0" />
+    <!-- Overides the default install mode. It solves a problem where
+    individual packaged files that have the same version as in previous
+    installed App version will be deleted if the files are in use during
+    this upgrade. Unfortunately this causes an ICE 40 warning during linking. -->
+    <Property Id="REINSTALLMODE" Value="emus" />
+    <!-- Overrides the default reboot behavior if files are in use during the upgrade.
+    By default, this will be set to "ReallySuppress" to make sure no unexpected reboot will happpen.-->
+    <Property Id="REBOOT" Value="ReallySuppress" />
+    <!-- Installlation level to use that determines which features are installed.
+    see guides/enduser.md to check which Install Level maps to which feature that will
+    correspondingly get installed.
+    If not set, this will default to "2" (Main Feature, Launch On Login) -->
+    <Property Id="INSTALLLEVEL" Value="2" />
+    <!-- Allows to customize the Windows user group that gets access rights on
+    the install folder in cas the auto-updater is installed. User that run the App
+    must be part of that user group to be able to auto-update. -->
+    <Property Id="UPDATERUSERGROUP" Value="Users" />
+    <!-- A property to define whether the auto-updater is enabled when the
+    feature gets installed. This way the update can be installed but also be disabled
+    by overwriting the default value.  -->
+    <Property Id="AUTOUPDATEENABLED" Value="1" />
+    <!-- Necessary registry search to find the install path which is used by the
+    PurgeOnUninstall action. Since this package can be installed perUser or perMachine,
+    we have to look in both places. First successful search wins. -->
+    <Property Id="INSTALLPATH">
+      <RegistrySearch Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{1BCFCB10-C1D3-41D0-BB80-3956936F610F}.msq"
+                      Root="HKCU" 
+                      Type="raw"
+                      Id="INSTALLPATH_REGSEARCH_HKCU"
+                      Name="InstallPath"
+                      Win64="yes"/>
+      <RegistrySearch Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{1BCFCB10-C1D3-41D0-BB80-3956936F610F}.msq"
+                      Root="HKLM" 
+                      Type="raw"
+                      Id="INSTALLPATH_REGSEARCH_HKLM"
+                      Name="InstallPath"
+                      Win64="yes"/>
+    </Property>
+    <!-- Lets change the product name depending on the perUser installMode. 
+    This way the user and admins can see in which scope the MSI was installed. -->
+    <SetProperty Action="SetVisibleProductName" Id="VisibleProductName" Sequence="both" Before="AppSearch"  Value="Josh's Grading Application (User)">
+      <![CDATA[MSIINSTALLPERUSER = "1"]]>
+    </SetProperty>
+    <!-- Again we give thee MSI generaten entry a slightly different name to help 
+    differentiate between the public one and the invisible one. -->
+    <SetProperty Action="SetProductName" Id="ProductName" Sequence="both" Before="AppSearch"  Value="Josh's Grading Application (User - MSI)">
+      <![CDATA[MSIINSTALLPERUSER = "1"]]>
+    </SetProperty>
+
+    <Media Id="1" Cabinet="product.cab" EmbedCab="yes"/>
+
+    <UI Id="UserInterface">
+      <TextStyle Id="WixUI_Font_Normal" FaceName="Tahoma" Size="8" />
+      <TextStyle Id="WixUI_Font_Bigger" FaceName="Tahoma" Size="12" />
+      <TextStyle Id="WixUI_Font_Title" FaceName="Tahoma" Size="9" Bold="yes" />
+      <Property Id="DefaultUIFont" Value="WixUI_Font_Normal" />
+      <Property Id="WixUI_Mode" Value="FeatureTree" />
+      <DialogRef Id="ErrorDlg" />
+      <DialogRef Id="FatalError" />
+      <DialogRef Id="FilesInUse" />
+      <DialogRef Id="MsiRMFilesInUse" />
+      <DialogRef Id="PrepareDlg" />
+      <DialogRef Id="ProgressDlg" />
+      <DialogRef Id="ResumeDlg" />
+      <DialogRef Id="UserExit" />
+      <Publish Dialog="ExitDialog" Control="Finish" Event="EndDialog" Value="Return" Order="999">1</Publish>
+      <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="CustomizeDlg">NOT Installed</Publish>
+      <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="VerifyReadyDlg">Installed AND PATCH</Publish>
+      <Publish Dialog="CustomizeDlg" Control="Back" Event="NewDialog" Value="MaintenanceTypeDlg" Order="1">Installed</Publish>
+      <Publish Dialog="CustomizeDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg" Order="2">NOT Installed</Publish>
+      <Publish Dialog="CustomizeDlg" Control="Next" Event="NewDialog" Value="VerifyReadyDlg">1</Publish>
+      <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="CustomizeDlg" Order="1">NOT Installed OR WixUI_InstallMode = "Change"</Publish>
+      <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="MaintenanceTypeDlg" Order="2">Installed AND NOT PATCH</Publish>
+      <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg" Order="3">Installed AND PATCH</Publish>
+      <Publish Dialog="MaintenanceWelcomeDlg" Control="Next" Event="NewDialog" Value="MaintenanceTypeDlg">1</Publish>
+      <Publish Dialog="MaintenanceTypeDlg" Control="ChangeButton" Event="NewDialog" Value="CustomizeDlg">1</Publish>
+      <Publish Dialog="MaintenanceTypeDlg" Control="RepairButton" Event="NewDialog" Value="VerifyReadyDlg">1</Publish>
+      <Publish Dialog="MaintenanceTypeDlg" Control="RemoveButton" Event="NewDialog" Value="VerifyReadyDlg">1</Publish>
+      <Publish Dialog="MaintenanceTypeDlg" Control="Back" Event="NewDialog" Value="MaintenanceWelcomeDlg">1</Publish>
+    </UI>
+    <UIRef Id="WixUI_Common" />
+
+
+    <!-- Step 2: Add files and directories -->
+    <Directory Id="TARGETDIR" Name="SourceDir">
+       <!-- Installation files to %PROGRAMFILES% -->
+      <Directory Id="ProgramFiles64Folder">
+        <Directory Id="APPLICATIONROOTDIRECTORY" Name="Josh's Grading Application">
+          <Directory Id="__3d9f8efd_e9c5_4667_b6a0_9a03b2ff3032" Name="app-1.0.0">
+            <Directory Id="_locales_fd9479fd_f11c_45ee_952b_01887d567f4a" Name="locales">
+              <Component Id="_locales_af.pak_5a2c4d1e_97ea_490b_8f78_f8927a4b1ef4" Guid="c9e6d32f-c959-4555-a8ac-6e570ba19cb3" Win64="yes">
+                <File Name="af.pak" Id="_locales_af.pak_5a2c4d1e_97ea_490b_8f78_f8927a4b1ef4" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\af.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_am.pak_8077a1d9_6af4_489b_8a29_9efc47108c41" Guid="1ad181d7-9664-41f7-8c56-e1e7bce61cb2" Win64="yes">
+                <File Name="am.pak" Id="_locales_am.pak_8077a1d9_6af4_489b_8a29_9efc47108c41" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\am.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_ar.pak_ee2863ca_ea90_435b_856f_1c3bdc90510e" Guid="ec7a6f3d-1ba5-45ae-8f78-5a7cc7c45811" Win64="yes">
+                <File Name="ar.pak" Id="_locales_ar.pak_ee2863ca_ea90_435b_856f_1c3bdc90510e" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\ar.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_bg.pak_5c504fff_b5e3_4504_9dd0_ce5a92df44b7" Guid="a1df3235-ad10-487f-88a5-df1c1c891e33" Win64="yes">
+                <File Name="bg.pak" Id="_locales_bg.pak_5c504fff_b5e3_4504_9dd0_ce5a92df44b7" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\bg.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_bn.pak_55505e00_21d9_4b15_8d14_65bcdf190e7f" Guid="4be6d87b-35a8-4982-9e0f-cc01c81c8fda" Win64="yes">
+                <File Name="bn.pak" Id="_locales_bn.pak_55505e00_21d9_4b15_8d14_65bcdf190e7f" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\bn.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_ca.pak_9cf59407_e22c_4cb4_ad82_9904c4411e0f" Guid="646bd962-3dbd-455b-bcb7-23c5acddd1af" Win64="yes">
+                <File Name="ca.pak" Id="_locales_ca.pak_9cf59407_e22c_4cb4_ad82_9904c4411e0f" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\ca.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_cs.pak_4ab2d764_2a58_4f1a_b80a_41b5d08d32ff" Guid="80fb2690-4176-467e-a227-0b9cf49c7281" Win64="yes">
+                <File Name="cs.pak" Id="_locales_cs.pak_4ab2d764_2a58_4f1a_b80a_41b5d08d32ff" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\cs.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_da.pak_c0826eea_f61a_46a0_8564_9229028737b2" Guid="017de4a4-4cd3-4bfd-8089-b848efd507ec" Win64="yes">
+                <File Name="da.pak" Id="_locales_da.pak_c0826eea_f61a_46a0_8564_9229028737b2" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\da.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_de.pak_4066ec0a_ce1b_4ef1_beb8_771ee1088cf4" Guid="dc89fdac-d3b6-416a-b29a-4f5a41b03998" Win64="yes">
+                <File Name="de.pak" Id="_locales_de.pak_4066ec0a_ce1b_4ef1_beb8_771ee1088cf4" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\de.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_el.pak_458c3b12_762e_4da2_8657_6f9f3d61bfe3" Guid="8523a856-bdc2-4bf2-b601-607857636b24" Win64="yes">
+                <File Name="el.pak" Id="_locales_el.pak_458c3b12_762e_4da2_8657_6f9f3d61bfe3" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\el.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_en_GB.pak_50a801b4_659b_4163_add7_6c43209cc616" Guid="f3f674e1-d717-46ea-92bf-55d36b671f71" Win64="yes">
+                <File Name="en-GB.pak" Id="_locales_en_GB.pak_50a801b4_659b_4163_add7_6c43209cc616" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\en-GB.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_en_US.pak_24a5ac67_bab2_4fbf_904d_7532190c721b" Guid="238d7797-78f7-4246-beb7-59886febfa81" Win64="yes">
+                <File Name="en-US.pak" Id="_locales_en_US.pak_24a5ac67_bab2_4fbf_904d_7532190c721b" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\en-US.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_es_419.pak_0396c8a3_950d_41f3_b40a_48f6370c9bf3" Guid="85d46349-cc5b-4b6c-ae2f-fe7b31a84f1f" Win64="yes">
+                <File Name="es-419.pak" Id="_locales_es_419.pak_0396c8a3_950d_41f3_b40a_48f6370c9bf3" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\es-419.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_es.pak_dcb61caa_62d9_47c6_9dc8_afb41936bfc6" Guid="658f458e-1ae4-4b9b-9e5c-76fcf2e4e8b4" Win64="yes">
+                <File Name="es.pak" Id="_locales_es.pak_dcb61caa_62d9_47c6_9dc8_afb41936bfc6" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\es.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_et.pak_df63cc99_e795_47b4_bce1_67048ef7e31e" Guid="46068897-4457-424b-97a2-21d53301c206" Win64="yes">
+                <File Name="et.pak" Id="_locales_et.pak_df63cc99_e795_47b4_bce1_67048ef7e31e" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\et.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_fa.pak_df863f05_badf_4a67_8274_193ef6f1b99a" Guid="edc95147-bc49-4940-baee-640d2d53b32c" Win64="yes">
+                <File Name="fa.pak" Id="_locales_fa.pak_df863f05_badf_4a67_8274_193ef6f1b99a" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\fa.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_fi.pak_20656410_9d39_47bc_aa25_def3d7fbb44a" Guid="cdc91413-cc1a-425e-b754-6ca52c0539e5" Win64="yes">
+                <File Name="fi.pak" Id="_locales_fi.pak_20656410_9d39_47bc_aa25_def3d7fbb44a" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\fi.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_fil.pak_036f6c58_64f8_4af7_9b2d_47fcbadc029e" Guid="59da3c7e-4eb3-4ad3-9733-c2b0a01fb6a8" Win64="yes">
+                <File Name="fil.pak" Id="_locales_fil.pak_036f6c58_64f8_4af7_9b2d_47fcbadc029e" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\fil.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_fr.pak_5926af40_a068_4112_9c03_d849145b26ea" Guid="eed8e2dc-1fad-496e-9a77-94386c491da5" Win64="yes">
+                <File Name="fr.pak" Id="_locales_fr.pak_5926af40_a068_4112_9c03_d849145b26ea" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\fr.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_gu.pak_90cc4b27_f543_4d71_9816_9d4614f4caeb" Guid="f7830aeb-3ada-4e77-b98b-ca85f618b222" Win64="yes">
+                <File Name="gu.pak" Id="_locales_gu.pak_90cc4b27_f543_4d71_9816_9d4614f4caeb" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\gu.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_he.pak_c37949ff_96a7_4c82_829e_429884110c8b" Guid="af9ff8e6-6189-4d52-b83a-01948f9dd6c5" Win64="yes">
+                <File Name="he.pak" Id="_locales_he.pak_c37949ff_96a7_4c82_829e_429884110c8b" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\he.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_hi.pak_9b47796e_132a_437c_aa79_2713a1007519" Guid="0f8cd216-31b2-4363-bd4d-d4a0efbd66ec" Win64="yes">
+                <File Name="hi.pak" Id="_locales_hi.pak_9b47796e_132a_437c_aa79_2713a1007519" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\hi.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_hr.pak_b8404ee7_e693_4443_906c_d048f338266d" Guid="9f054c39-4c63-450c-9f60-8f4705708bc5" Win64="yes">
+                <File Name="hr.pak" Id="_locales_hr.pak_b8404ee7_e693_4443_906c_d048f338266d" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\hr.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_hu.pak_610cf8d6_c8cd_4f63_b17b_2fa54fa84a85" Guid="9fdeb3ff-968f-41b7-889e-363a11118992" Win64="yes">
+                <File Name="hu.pak" Id="_locales_hu.pak_610cf8d6_c8cd_4f63_b17b_2fa54fa84a85" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\hu.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_id.pak_032d9d38_6f95_421e_b551_f9c5130e24e6" Guid="6022e44a-4251-4614-8e30-4a7c815edbaf" Win64="yes">
+                <File Name="id.pak" Id="_locales_id.pak_032d9d38_6f95_421e_b551_f9c5130e24e6" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\id.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_it.pak_f95fb7c7_8943_425c_bde3_9972e0a0cdaa" Guid="14de831c-5a94-4946-8a55-b0cd3f11cce9" Win64="yes">
+                <File Name="it.pak" Id="_locales_it.pak_f95fb7c7_8943_425c_bde3_9972e0a0cdaa" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\it.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_ja.pak_304e61ae_d5ba_4145_912f_7ceaf239dd23" Guid="9a93edcc-68a4-4187-aec6-98bd3a1fafcb" Win64="yes">
+                <File Name="ja.pak" Id="_locales_ja.pak_304e61ae_d5ba_4145_912f_7ceaf239dd23" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\ja.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_kn.pak_01717b8c_c95b_4d9d_bd9b_e0f6ec01c324" Guid="b0acade6-6557-4a57-a56d-7695f305107d" Win64="yes">
+                <File Name="kn.pak" Id="_locales_kn.pak_01717b8c_c95b_4d9d_bd9b_e0f6ec01c324" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\kn.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_ko.pak_98121df6_ea7c_4c54_a2f7_dda00c26cf76" Guid="a7cd0d8f-5bac-441c-93a1-6bed1ee45463" Win64="yes">
+                <File Name="ko.pak" Id="_locales_ko.pak_98121df6_ea7c_4c54_a2f7_dda00c26cf76" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\ko.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_lt.pak_31b0dc1c_a3b3_4e94_95fd_0c6e3aba7e88" Guid="0e5a0422-5397-414c-afc6-bfcb0d984477" Win64="yes">
+                <File Name="lt.pak" Id="_locales_lt.pak_31b0dc1c_a3b3_4e94_95fd_0c6e3aba7e88" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\lt.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_lv.pak_603213b7_bd6b_47a6_bea6_233ac46753db" Guid="59d357d5-567a-46a2-ae08-f2808e3216a8" Win64="yes">
+                <File Name="lv.pak" Id="_locales_lv.pak_603213b7_bd6b_47a6_bea6_233ac46753db" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\lv.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_ml.pak_068703ac_7e91_4038_b93c_08e5f2e8d85d" Guid="6a03db01-5c2f-41d4-9e35-b620acdf47a9" Win64="yes">
+                <File Name="ml.pak" Id="_locales_ml.pak_068703ac_7e91_4038_b93c_08e5f2e8d85d" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\ml.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_mr.pak_eaadfcbe_8ae6_4ac2_a96b_96b2e9fb98fe" Guid="21beeef5-8487-4fb0-8a34-9aefcb1cbd2b" Win64="yes">
+                <File Name="mr.pak" Id="_locales_mr.pak_eaadfcbe_8ae6_4ac2_a96b_96b2e9fb98fe" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\mr.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_ms.pak_96280c81_3f5f_4b1d_b0eb_7d73c8af7a96" Guid="93885153-80b6-4fd7-82a7-b8b4d9d0d330" Win64="yes">
+                <File Name="ms.pak" Id="_locales_ms.pak_96280c81_3f5f_4b1d_b0eb_7d73c8af7a96" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\ms.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_nb.pak_f6ec0306_cd92_4fe9_8ac8_97694dcbfef3" Guid="e94b5e10-2751-4129-9da9-c5a7cc870ab9" Win64="yes">
+                <File Name="nb.pak" Id="_locales_nb.pak_f6ec0306_cd92_4fe9_8ac8_97694dcbfef3" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\nb.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_nl.pak_e041ec19_5b8a_4c52_8329_92985041ea38" Guid="e1e0759a-87ab-4a33-84f6-6d9c0acc7c4f" Win64="yes">
+                <File Name="nl.pak" Id="_locales_nl.pak_e041ec19_5b8a_4c52_8329_92985041ea38" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\nl.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_pl.pak_7083ee83_a99f_4154_a524_4c8755739055" Guid="e1af60a5-6cf8-48aa-93e8-972589ad6cf2" Win64="yes">
+                <File Name="pl.pak" Id="_locales_pl.pak_7083ee83_a99f_4154_a524_4c8755739055" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\pl.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_pt_BR.pak_b520ba0a_fd26_4893_bd0e_93205b9d6609" Guid="f8775e47-2ddf-41d4-bf5f-aaec9171c5f9" Win64="yes">
+                <File Name="pt-BR.pak" Id="_locales_pt_BR.pak_b520ba0a_fd26_4893_bd0e_93205b9d6609" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\pt-BR.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_pt_PT.pak_596da7ed_86c0_42a1_ac11_65b55978c3e0" Guid="a1228104-596a-42aa-ba5c-9b8284f40c67" Win64="yes">
+                <File Name="pt-PT.pak" Id="_locales_pt_PT.pak_596da7ed_86c0_42a1_ac11_65b55978c3e0" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\pt-PT.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_ro.pak_d0db0274_176d_4215_ab71_c0ce403e6f65" Guid="29bf5584-2d73-478d-b248-8c5761399499" Win64="yes">
+                <File Name="ro.pak" Id="_locales_ro.pak_d0db0274_176d_4215_ab71_c0ce403e6f65" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\ro.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_ru.pak_0b41bc17_b979_4ffa_983c_79ba90cbedb9" Guid="bb06e707-25aa-47bd-9445-ba18b56ee931" Win64="yes">
+                <File Name="ru.pak" Id="_locales_ru.pak_0b41bc17_b979_4ffa_983c_79ba90cbedb9" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\ru.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_sk.pak_8380c4cb_99c6_447d_b4e1_182cd5c2c834" Guid="985243e6-e548-4531-aa4d-398e793e0c7c" Win64="yes">
+                <File Name="sk.pak" Id="_locales_sk.pak_8380c4cb_99c6_447d_b4e1_182cd5c2c834" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\sk.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_sl.pak_12a9471f_5e85_459d_af98_8dc47f5443a2" Guid="8a8d053b-2f11-4c4b-ad26-340b77740ecc" Win64="yes">
+                <File Name="sl.pak" Id="_locales_sl.pak_12a9471f_5e85_459d_af98_8dc47f5443a2" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\sl.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_sr.pak_830bdaf7_e4b2_409c_b3cf_2566250cabf5" Guid="0f66b2b3-2760-4e1b-ac7a-4e6f2e61393c" Win64="yes">
+                <File Name="sr.pak" Id="_locales_sr.pak_830bdaf7_e4b2_409c_b3cf_2566250cabf5" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\sr.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_sv.pak_2404d1a8_17b1_4b9d_b226_1edbb0abedd6" Guid="6d8a85f5-cb65-42f3-8b23-6dfd9e5bb9b7" Win64="yes">
+                <File Name="sv.pak" Id="_locales_sv.pak_2404d1a8_17b1_4b9d_b226_1edbb0abedd6" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\sv.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_sw.pak_21f70a3a_b5b0_48dc_a7c3_e53c7f9512b1" Guid="b531d0c7-a2e6-4b32-81e5-bd503bad0f1e" Win64="yes">
+                <File Name="sw.pak" Id="_locales_sw.pak_21f70a3a_b5b0_48dc_a7c3_e53c7f9512b1" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\sw.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_ta.pak_ac27b7a9_ec9e_40b9_9983_20f43325edf6" Guid="029414e4-e4ba-4f2b-865e-37593af0361c" Win64="yes">
+                <File Name="ta.pak" Id="_locales_ta.pak_ac27b7a9_ec9e_40b9_9983_20f43325edf6" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\ta.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_te.pak_59280e18_79b3_45cb_91b8_0eb20af948bc" Guid="2c934690-1085-4a8e-8819-d6afcce0d22e" Win64="yes">
+                <File Name="te.pak" Id="_locales_te.pak_59280e18_79b3_45cb_91b8_0eb20af948bc" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\te.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_th.pak_7809ed5b_38ad_4ed5_90bb_b454ee12be21" Guid="ed1910a2-1a3c-4cf6-a5e0-57140dd3f4a9" Win64="yes">
+                <File Name="th.pak" Id="_locales_th.pak_7809ed5b_38ad_4ed5_90bb_b454ee12be21" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\th.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_tr.pak_8c47deb6_b67d_4bff_9e10_d09215f91550" Guid="6cb267c2-c2f8-4e51-ac4a-d7c366274337" Win64="yes">
+                <File Name="tr.pak" Id="_locales_tr.pak_8c47deb6_b67d_4bff_9e10_d09215f91550" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\tr.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_uk.pak_c97d2939_715e_4783_9191_e33501a3c77b" Guid="a25cc7bf-6a3d-48ae-a35d-856870d5e9b9" Win64="yes">
+                <File Name="uk.pak" Id="_locales_uk.pak_c97d2939_715e_4783_9191_e33501a3c77b" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\uk.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_ur.pak_05faffcc_6093_4fbd_b13c_ae5f8a5f35e5" Guid="356e17ba-9476-4f5e-ae6a-b136e82bba0c" Win64="yes">
+                <File Name="ur.pak" Id="_locales_ur.pak_05faffcc_6093_4fbd_b13c_ae5f8a5f35e5" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\ur.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_vi.pak_7a9f1764_7aa4_499d_b01f_588f37465ae9" Guid="3299957b-56d4-43ae-a0b6-f96fe432cb78" Win64="yes">
+                <File Name="vi.pak" Id="_locales_vi.pak_7a9f1764_7aa4_499d_b01f_588f37465ae9" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\vi.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_zh_CN.pak_4b25ffe7_3161_4495_aa28_8eb006e26442" Guid="4483477d-7563-4b7b-821f-426a215170aa" Win64="yes">
+                <File Name="zh-CN.pak" Id="_locales_zh_CN.pak_4b25ffe7_3161_4495_aa28_8eb006e26442" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\zh-CN.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+              <Component Id="_locales_zh_TW.pak_e2360384_ac4d_49d0_9162_10ccd0e5a873" Guid="1a915f20-a136-4986-96a8-06f84efd937c" Win64="yes">
+                <File Name="zh-TW.pak" Id="_locales_zh_TW.pak_e2360384_ac4d_49d0_9162_10ccd0e5a873" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\locales\zh-TW.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+              </Component>
+            </Directory>
+            <Directory Id="_resources_8ce52162_e0a6_4f5a_873e_1c77278f075c" Name="resources">
+              <Directory Id="_resources_app_d83f67d5_cbdc_4c03_baec_ae96c28686cd" Name="app">
+                <Directory Id="_resources_app_.webpack_ca51105b_e626_4f6c_b4d9_b137c9808866" Name=".webpack">
+                  <Directory Id="_resources_app_.webpack_main_53b8e062_3a02_43a2_a15a_6c1666e3b442" Name="main">
+                    <Directory Id="_native_modules_141b76fa_b0e2_4136_9e9a_74eb050d6c8d" Name="native_modules">
+                      <Directory Id="_build_9792f6fb_d56f_4843_abc5_ede46e34f485" Name="build">
+                        <Directory Id="_Release_3fe47661_ceca_4493_bc7b_83abd698426f" Name="Release">
+                          <Component Id="_better_sqlite3.node_ea80b9db_8dda_4acf_817e_18bd899786e9" Guid="c8fbfa03-bde9-4540-98e7-765f2aa6dd36" Win64="yes">
+                            <File Name="better_sqlite3.node" Id="_better_sqlite3.node_ea80b9db_8dda_4acf_817e_18bd899786e9" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\resources\app\.webpack\main\native_modules\build\Release\better_sqlite3.node" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+                          </Component>
+                        </Directory>
+                      </Directory>
+
+                    </Directory>
+                    <Component Id="_index.js_e3c19839_e8fb_4043_b060_1eb13868317e" Guid="5264c916-bf55-44ad-bb92-38a91c4bc519" Win64="yes">
+                      <File Name="index.js" Id="_index.js_e3c19839_e8fb_4043_b060_1eb13868317e" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\resources\app\.webpack\main\index.js" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+                    </Component>
+                  </Directory>
+
+                  <Directory Id="_resources_app_.webpack_renderer_3f340655_d266_492e_92d0_ec6c82c82dca" Name="renderer">
+                    <Directory Id="_main_window_1ad21762_b853_4dbc_bdfd_099699e73b19" Name="main_window">
+                      <Component Id="_index.html_cf95bf16_16f9_4a4d_8fb7_dc6d98382846" Guid="8ca9eeb2-0a4f-4fd4-950f-b9101acfd325" Win64="yes">
+                        <File Name="index.html" Id="_index.html_cf95bf16_16f9_4a4d_8fb7_dc6d98382846" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\resources\app\.webpack\renderer\main_window\index.html" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+                      </Component>
+                      <Component Id="_index.js_3c6364d2_4f74_4616_b29f_317c1a2c47d6" Guid="004cb092-089c-4e17-8110-eed6a805cf47" Win64="yes">
+                        <File Name="index.js" Id="_index.js_3c6364d2_4f74_4616_b29f_317c1a2c47d6" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\resources\app\.webpack\renderer\main_window\index.js" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+                      </Component>
+                      <Component Id="_index.js.LICENSE.txt_dc32e156_6bda_4ed3_8154_e2d10b690bbf" Guid="bee96369-fe14-4c9b-b3fa-1bbd0cce2cef" Win64="yes">
+                        <File Name="index.js.LICENSE.txt" Id="_index.js.LICENSE.txt_dc32e156_6bda_4ed3_8154_e2d10b690bbf" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\resources\app\.webpack\renderer\main_window\index.js.LICENSE.txt" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+                      </Component>
+                      <Component Id="_preload.js_0fa0f2a4_0cc1_4ef3_8ebf_db0d1a7bf94d" Guid="a482e02b-db0c-4a2a-82b6-0879096f6685" Win64="yes">
+                        <File Name="preload.js" Id="_preload.js_0fa0f2a4_0cc1_4ef3_8ebf_db0d1a7bf94d" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\resources\app\.webpack\renderer\main_window\preload.js" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+                      </Component>
+                    </Directory>
+                  </Directory>
+
+                </Directory>
+
+                <Directory Id="_resources_app_node_modules_b57e5f88_9240_4790_84af_817c4b435026" Name="node_modules">
+
+                </Directory>                <Component Id="_resources_app_package.json_5e5d44d2_9d6f_48b9_a752_b17d1a564896" Guid="9fba6186-c965-497c-add3-5f70d1c35dce" Win64="yes">
+                  <File Name="package.json" Id="_resources_app_package.json_5e5d44d2_9d6f_48b9_a752_b17d1a564896" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\resources\app\package.json" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+                </Component>
+              </Directory>
+
+            </Directory>
+            <Component Id="_LICENSE_e08e8728_87fe_40f6_93e9_cf4827970473" Guid="e975359c-eb1c-41da-bdd1-f51f4e717b09" Win64="yes">
+              <File Name="LICENSE" Id="_LICENSE_e08e8728_87fe_40f6_93e9_cf4827970473" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\LICENSE" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+            </Component>
+            <Component Id="_LICENSES.chromium.html_e22b79a3_3ef6_43a6_a426_e02466352229" Guid="d232d187-8e6d-439a-8425-82f02517ed32" Win64="yes">
+              <File Name="LICENSES.chromium.html" Id="_LICENSES.chromium.html_e22b79a3_3ef6_43a6_a426_e02466352229" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\LICENSES.chromium.html" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+            </Component>
+            <Component Id="_chrome_100_percent.pak_12efe963_4739_4c78_9c44_728fb9293f8a" Guid="23307374-9f46-4f93-9487-2217d6b362d9" Win64="yes">
+              <File Name="chrome_100_percent.pak" Id="_chrome_100_percent.pak_12efe963_4739_4c78_9c44_728fb9293f8a" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\chrome_100_percent.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+            </Component>
+            <Component Id="_chrome_200_percent.pak_40bcc5bf_39c4_495e_b148_6a5e7e00d328" Guid="295ebba5-97e6-4011-83c5-19b71584b12b" Win64="yes">
+              <File Name="chrome_200_percent.pak" Id="_chrome_200_percent.pak_40bcc5bf_39c4_495e_b148_6a5e7e00d328" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\chrome_200_percent.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+            </Component>
+            <Component Id="_d3dcompiler_47.dll_c998d924_5e5e_4fe9_b4ab_775b2b875394" Guid="48f0cab1-5b56-463f-9a52-6f11f8028e7e" Win64="yes">
+              <File Name="d3dcompiler_47.dll" Id="_d3dcompiler_47.dll_c998d924_5e5e_4fe9_b4ab_775b2b875394" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\d3dcompiler_47.dll" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+            </Component>
+            <Component Id="_ffmpeg.dll_fc1b2b0a_a1b6_4e5b_b73a_c8a300f3566c" Guid="f1ccbfa2-605b-47cf-826e-3377cef4951b" Win64="yes">
+              <File Name="ffmpeg.dll" Id="_ffmpeg.dll_fc1b2b0a_a1b6_4e5b_b73a_c8a300f3566c" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\ffmpeg.dll" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+            </Component>
+            <Component Id="_icudtl.dat_b6ea452f_2b3c_4637_8494_b0063e79da72" Guid="e31dad6e-b4aa-41c8-86d8-4440de3e9337" Win64="yes">
+              <File Name="icudtl.dat" Id="_icudtl.dat_b6ea452f_2b3c_4637_8494_b0063e79da72" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\icudtl.dat" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+            </Component>
+            <Component Id="_josh_silveous_grading_application._eeb9f795_41f3_405d_a45b_888d38502272" Guid="f0a9f553-e069-44db-9bf7-6bd8d0af6006" Win64="yes">
+              <File Name="josh-silveous-grading-application.exe" Id="_josh_silveous_grading_application._eeb9f795_41f3_405d_a45b_888d38502272" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\josh-silveous-grading-application.exe" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+            </Component>
+            <Component Id="_libEGL.dll_375fbdcb_0dcc_423d_9498_175156d13c00" Guid="c20e0560-a78f-4851-90b0-bf905e08f82c" Win64="yes">
+              <File Name="libEGL.dll" Id="_libEGL.dll_375fbdcb_0dcc_423d_9498_175156d13c00" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\libEGL.dll" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+            </Component>
+            <Component Id="_libGLESv2.dll_63fb9a61_18e2_44ab_b636_9d0abe7aa0cb" Guid="071e23c6-309b-4852-9bb9-9e5a5767358f" Win64="yes">
+              <File Name="libGLESv2.dll" Id="_libGLESv2.dll_63fb9a61_18e2_44ab_b636_9d0abe7aa0cb" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\libGLESv2.dll" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+            </Component>
+            <Component Id="_resources.pak_6a35b45a_dc1b_41eb_85ea_0f6dec19e988" Guid="e323cf7e-78eb-4c1a-816d-84d672e970d4" Win64="yes">
+              <File Name="resources.pak" Id="_resources.pak_6a35b45a_dc1b_41eb_85ea_0f6dec19e988" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\resources.pak" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+            </Component>
+            <Component Id="_snapshot_blob.bin_e77866c7_5b06_4e2a_b99c_3c5bd6ca2482" Guid="0fde9cfa-daf5-4b63-8e2d-8a495b155b6b" Win64="yes">
+              <File Name="snapshot_blob.bin" Id="_snapshot_blob.bin_e77866c7_5b06_4e2a_b99c_3c5bd6ca2482" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\snapshot_blob.bin" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+            </Component>
+            <Component Id="_v8_context_snapshot.bin_be0848cd_0fea_4149_ba8f_e19cfb775a8d" Guid="64ddab8f-ae1e-4b89-820e-10f6e34802ab" Win64="yes">
+              <File Name="v8_context_snapshot.bin" Id="_v8_context_snapshot.bin_be0848cd_0fea_4149_ba8f_e19cfb775a8d" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\v8_context_snapshot.bin" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+            </Component>
+            <Component Id="_version_edfe30ef_908b_4540_ba0e_36fe1322c0a5" Guid="8cc5a8bd-a5b2-4828-811f-a55734b6bf98" Win64="yes">
+              <File Name="version" Id="_version_edfe30ef_908b_4540_ba0e_36fe1322c0a5" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\version" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+            </Component>
+            <Component Id="_vk_swiftshader.dll_e4bc50bd_ddc9_4d86_8cb4_832da4de741f" Guid="abc5a5d2-e022-4e1a-a62b-64e3ae9bcea3" Win64="yes">
+              <File Name="vk_swiftshader.dll" Id="_vk_swiftshader.dll_e4bc50bd_ddc9_4d86_8cb4_832da4de741f" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\vk_swiftshader.dll" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+            </Component>
+            <Component Id="_vk_swiftshader_icd.json_f8c87975_11eb_447e_95a8_e5209758fdf5" Guid="1f3e8472-f56d-4905-9be2-ceda36f4034a" Win64="yes">
+              <File Name="vk_swiftshader_icd.json" Id="_vk_swiftshader_icd.json_f8c87975_11eb_447e_95a8_e5209758fdf5" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\vk_swiftshader_icd.json" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+            </Component>
+            <Component Id="_vulkan_1.dll_0e319c3d_4784_4a98_aa73_17eccf6a20ed" Guid="bdb91918-c265-44ed-922c-bcc096cdb374" Win64="yes">
+              <File Name="vulkan-1.dll" Id="_vulkan_1.dll_0e319c3d_4784_4a98_aa73_17eccf6a20ed" Source="C:\Users\Joshua\Desktop\grading-application\out\josh-silveous-grading-application-win32-x64\vulkan-1.dll" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+            </Component>
+          </Directory>
+          <Component Id="_josh_silveous_grading_application._6c78b29a_cbb6_4355_9cc4_478397fbd88a" Guid="418cca2a-f2a5-4180-9679-1af2e4e9e932" Win64="yes">
+            <File Name="josh-silveous-grading-application.exe" Id="_josh_silveous_grading_application._6c78b29a_cbb6_4355_9cc4_478397fbd88a" Source="C:\Users\Joshua\AppData\Local\Temp\josh-silveous-grading-applicationiIc9ak\josh-silveous-grading-application.exe" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+          </Component>
+          <Component Id="_.installInfo.json_48a3ab80_1e81_4289_bf53_c9e1ad439a34" Guid="628dd761-d5fd-4eb6-a8e1-13022c28bfcf" Win64="yes">
+            <File Name=".installInfo.json" Id="_.installInfo.json_48a3ab80_1e81_4289_bf53_c9e1ad439a34" Source="C:\Users\Joshua\AppData\Local\Temp\.installInfoSbKrwQ\.installInfo.json" KeyPath="yes" Checksum="yes" ProcessorArchitecture="x64"/>
+          </Component>
+          <Component Id="RegistryInstallPath" Guid="dc921a8c-1b08-48dc-a267-287cfcc2ca1c" Win64="yes">
+            <RegistryKey Root="HKMU" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{1BCFCB10-C1D3-41D0-BB80-3956936F610F}.msq" ForceCreateOnInstall="no" ForceDeleteOnUninstall="yes">
+              <RegistryValue Name="InstallPath" Type="string" Value="[APPLICATIONROOTDIRECTORY]" KeyPath="yes"/>
+            </RegistryKey>
+          </Component>
+          <Component Id="UninstallDisplayName" Guid="43aff050-3e71-4fea-974e-b573d24256e4" Win64="yes">
+            <RegistryKey Root="HKMU" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{1BCFCB10-C1D3-41D0-BB80-3956936F610F}.msq" ForceCreateOnInstall="no" ForceDeleteOnUninstall="yes">
+              <RegistryValue Name="DisplayName" Type="string" Value="[VisibleProductName]" KeyPath="yes"/>
+            </RegistryKey>
+          </Component>
+          <Component Id="UninstallPublisher" Guid="15da9718-2470-4a1b-8ffa-853e40330b44" Win64="yes">
+            <RegistryKey Root="HKMU" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{1BCFCB10-C1D3-41D0-BB80-3956936F610F}.msq" ForceCreateOnInstall="no" ForceDeleteOnUninstall="yes">
+              <RegistryValue Name="Publisher" Type="string" Value="Joshua W Silveous Inc." KeyPath="yes"/>
+            </RegistryKey>
+          </Component>
+          <Component Id="UninstallDisplayVersion" Guid="730e2125-4700-4125-994a-ec4ac3c74647" Win64="yes">
+            <RegistryKey Root="HKMU" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{1BCFCB10-C1D3-41D0-BB80-3956936F610F}.msq" ForceCreateOnInstall="no" ForceDeleteOnUninstall="yes">
+              <RegistryValue Name="DisplayVersion" Type="string" Value="1.0.0" KeyPath="yes"/>
+            </RegistryKey>
+          </Component>
+          <Component Id="UninstallModifyString" Guid="6ee7bc18-e562-4fa3-99a8-0d836bcbe447" Win64="yes">
+            <RegistryKey Root="HKMU" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{1BCFCB10-C1D3-41D0-BB80-3956936F610F}.msq" ForceCreateOnInstall="no" ForceDeleteOnUninstall="yes">
+              <RegistryValue Name="ModifyPath" Type="expandable" Value="MsiExec.exe /I {1BCFCB10-C1D3-41D0-BB80-3956936F610F}" KeyPath="yes"/>
+            </RegistryKey>
+          </Component>
+          <Component Id="UninstallString" Guid="61fb3e9e-85dc-42a7-a541-f4cb6cc4371c" Win64="yes">
+            <RegistryKey Root="HKMU" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{1BCFCB10-C1D3-41D0-BB80-3956936F610F}.msq" ForceCreateOnInstall="no" ForceDeleteOnUninstall="yes">
+              <RegistryValue Name="UninstallString" Type="expandable" Value="MsiExec.exe /X {1BCFCB10-C1D3-41D0-BB80-3956936F610F}" KeyPath="yes"/>
+            </RegistryKey>
+          </Component>
+          <Component Id="UninstallDisplayIcon" Guid="0959dd4a-695d-4c46-808a-54623524fb05" Win64="yes">
+            <RegistryKey Root="HKMU" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{1BCFCB10-C1D3-41D0-BB80-3956936F610F}.msq" ForceCreateOnInstall="no" ForceDeleteOnUninstall="yes">
+              <RegistryValue Name="DisplayIcon" Type="expandable" Value="[System64Folder]msiexec.exe" KeyPath="yes"/>
+            </RegistryKey>
+          </Component>
+        </Directory>
+      </Directory>
+
+      <!-- Desktop -->
+      <Directory Id="DesktopFolder" Name="Desktop" />
+
+      <!-- Start Menu -->
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="Joshua W Silveous Inc."/>
+      </Directory>
+    </Directory>
+
+    <!-- Step 3: Add app to Start Menu -->
+    <DirectoryRef Id="ApplicationProgramsFolder">
+      <Component Id="ApplicationShortcut" Guid="8731e1e3-2640-48c2-b528-8401f7287332" Win64="yes">
+        <Shortcut Id="ApplicationStartMenuShortcut"
+                  Name="Josh's Grading Application"
+                  Description="This is my final application for CSET4250.
+    It can be used to track grades for students, for assignments, amongst many classes."
+                  Target="[APPLICATIONROOTDIRECTORY]josh-silveous-grading-application.exe"
+                  WorkingDirectory="APPLICATIONROOTDIRECTORY">
+          <ShortcutProperty Key="System.AppUserModel.ID" Value="com.squirrel.josh-silveous-grade-app.josh-silveous-grading-application"/>
+        </Shortcut>
+        <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall"/>
+        <RegistryValue Root="HKCU"
+                       Key="Software\Microsoft\josh-silveous-grade-app"
+                       Name="installed"
+                       Type="integer"
+                       Value="1"
+                       KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+
+   <!-- Step 4: Add app desktop shortcut --> 
+    <DirectoryRef Id="DesktopFolder">
+      <Component Id="DesktopShortcut" Guid="f016fa43-3f40-4442-8b60-0cdb6b71f5fe" >
+          <Shortcut Id="MyDesktopShortcut"
+                    Name="Josh's Grading Application"
+                    Description="This is my final application for CSET4250.
+    It can be used to track grades for students, for assignments, amongst many classes."
+                    Target="[APPLICATIONROOTDIRECTORY]josh-silveous-grading-application.exe"
+                    WorkingDirectory="APPLICATIONROOTDIRECTORY"/>
+          <RegistryValue Root="HKCU"
+                    Key="Software\Microsoft\josh-silveous-grade-app"
+                    Name="installed"
+                    Type="integer"
+                    Value="1"
+                    KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+
+    <!-- Lets cleanup any files that are were not part of the initial install
+    via this MSI. Such as newer versions installed by the auto-updater. -->
+    <DirectoryRef Id="APPLICATIONROOTDIRECTORY">
+      <Component Id="PurgeOnUninstall" Guid="5c564646-b099-422c-bf29-1d0127a6f9a4" Win64="yes">
+        <CreateFolder/>
+        <util:RemoveFolderEx On="uninstall" Property="INSTALLPATH" />
+      </Component>
+    </DirectoryRef>
+
+    <Feature Id="Complete" Title="Josh's Grading Application (1.0.0)" Description="The complete package." Display="expand" Level="1" ConfigurableDirectory="APPLICATIONROOTDIRECTORY">
+      <!-- Step 5: Tell WiX to install the files -->
+      <Feature Id="MainApplication" Title="Main Application" Level="1" Description="The main components to run the applications." >
+        <ComponentRef Id="_locales_af.pak_5a2c4d1e_97ea_490b_8f78_f8927a4b1ef4" />
+        <ComponentRef Id="_locales_am.pak_8077a1d9_6af4_489b_8a29_9efc47108c41" />
+        <ComponentRef Id="_locales_ar.pak_ee2863ca_ea90_435b_856f_1c3bdc90510e" />
+        <ComponentRef Id="_locales_bg.pak_5c504fff_b5e3_4504_9dd0_ce5a92df44b7" />
+        <ComponentRef Id="_locales_bn.pak_55505e00_21d9_4b15_8d14_65bcdf190e7f" />
+        <ComponentRef Id="_locales_ca.pak_9cf59407_e22c_4cb4_ad82_9904c4411e0f" />
+        <ComponentRef Id="_locales_cs.pak_4ab2d764_2a58_4f1a_b80a_41b5d08d32ff" />
+        <ComponentRef Id="_locales_da.pak_c0826eea_f61a_46a0_8564_9229028737b2" />
+        <ComponentRef Id="_locales_de.pak_4066ec0a_ce1b_4ef1_beb8_771ee1088cf4" />
+        <ComponentRef Id="_locales_el.pak_458c3b12_762e_4da2_8657_6f9f3d61bfe3" />
+        <ComponentRef Id="_locales_en_GB.pak_50a801b4_659b_4163_add7_6c43209cc616" />
+        <ComponentRef Id="_locales_en_US.pak_24a5ac67_bab2_4fbf_904d_7532190c721b" />
+        <ComponentRef Id="_locales_es_419.pak_0396c8a3_950d_41f3_b40a_48f6370c9bf3" />
+        <ComponentRef Id="_locales_es.pak_dcb61caa_62d9_47c6_9dc8_afb41936bfc6" />
+        <ComponentRef Id="_locales_et.pak_df63cc99_e795_47b4_bce1_67048ef7e31e" />
+        <ComponentRef Id="_locales_fa.pak_df863f05_badf_4a67_8274_193ef6f1b99a" />
+        <ComponentRef Id="_locales_fi.pak_20656410_9d39_47bc_aa25_def3d7fbb44a" />
+        <ComponentRef Id="_locales_fil.pak_036f6c58_64f8_4af7_9b2d_47fcbadc029e" />
+        <ComponentRef Id="_locales_fr.pak_5926af40_a068_4112_9c03_d849145b26ea" />
+        <ComponentRef Id="_locales_gu.pak_90cc4b27_f543_4d71_9816_9d4614f4caeb" />
+        <ComponentRef Id="_locales_he.pak_c37949ff_96a7_4c82_829e_429884110c8b" />
+        <ComponentRef Id="_locales_hi.pak_9b47796e_132a_437c_aa79_2713a1007519" />
+        <ComponentRef Id="_locales_hr.pak_b8404ee7_e693_4443_906c_d048f338266d" />
+        <ComponentRef Id="_locales_hu.pak_610cf8d6_c8cd_4f63_b17b_2fa54fa84a85" />
+        <ComponentRef Id="_locales_id.pak_032d9d38_6f95_421e_b551_f9c5130e24e6" />
+        <ComponentRef Id="_locales_it.pak_f95fb7c7_8943_425c_bde3_9972e0a0cdaa" />
+        <ComponentRef Id="_locales_ja.pak_304e61ae_d5ba_4145_912f_7ceaf239dd23" />
+        <ComponentRef Id="_locales_kn.pak_01717b8c_c95b_4d9d_bd9b_e0f6ec01c324" />
+        <ComponentRef Id="_locales_ko.pak_98121df6_ea7c_4c54_a2f7_dda00c26cf76" />
+        <ComponentRef Id="_locales_lt.pak_31b0dc1c_a3b3_4e94_95fd_0c6e3aba7e88" />
+        <ComponentRef Id="_locales_lv.pak_603213b7_bd6b_47a6_bea6_233ac46753db" />
+        <ComponentRef Id="_locales_ml.pak_068703ac_7e91_4038_b93c_08e5f2e8d85d" />
+        <ComponentRef Id="_locales_mr.pak_eaadfcbe_8ae6_4ac2_a96b_96b2e9fb98fe" />
+        <ComponentRef Id="_locales_ms.pak_96280c81_3f5f_4b1d_b0eb_7d73c8af7a96" />
+        <ComponentRef Id="_locales_nb.pak_f6ec0306_cd92_4fe9_8ac8_97694dcbfef3" />
+        <ComponentRef Id="_locales_nl.pak_e041ec19_5b8a_4c52_8329_92985041ea38" />
+        <ComponentRef Id="_locales_pl.pak_7083ee83_a99f_4154_a524_4c8755739055" />
+        <ComponentRef Id="_locales_pt_BR.pak_b520ba0a_fd26_4893_bd0e_93205b9d6609" />
+        <ComponentRef Id="_locales_pt_PT.pak_596da7ed_86c0_42a1_ac11_65b55978c3e0" />
+        <ComponentRef Id="_locales_ro.pak_d0db0274_176d_4215_ab71_c0ce403e6f65" />
+        <ComponentRef Id="_locales_ru.pak_0b41bc17_b979_4ffa_983c_79ba90cbedb9" />
+        <ComponentRef Id="_locales_sk.pak_8380c4cb_99c6_447d_b4e1_182cd5c2c834" />
+        <ComponentRef Id="_locales_sl.pak_12a9471f_5e85_459d_af98_8dc47f5443a2" />
+        <ComponentRef Id="_locales_sr.pak_830bdaf7_e4b2_409c_b3cf_2566250cabf5" />
+        <ComponentRef Id="_locales_sv.pak_2404d1a8_17b1_4b9d_b226_1edbb0abedd6" />
+        <ComponentRef Id="_locales_sw.pak_21f70a3a_b5b0_48dc_a7c3_e53c7f9512b1" />
+        <ComponentRef Id="_locales_ta.pak_ac27b7a9_ec9e_40b9_9983_20f43325edf6" />
+        <ComponentRef Id="_locales_te.pak_59280e18_79b3_45cb_91b8_0eb20af948bc" />
+        <ComponentRef Id="_locales_th.pak_7809ed5b_38ad_4ed5_90bb_b454ee12be21" />
+        <ComponentRef Id="_locales_tr.pak_8c47deb6_b67d_4bff_9e10_d09215f91550" />
+        <ComponentRef Id="_locales_uk.pak_c97d2939_715e_4783_9191_e33501a3c77b" />
+        <ComponentRef Id="_locales_ur.pak_05faffcc_6093_4fbd_b13c_ae5f8a5f35e5" />
+        <ComponentRef Id="_locales_vi.pak_7a9f1764_7aa4_499d_b01f_588f37465ae9" />
+        <ComponentRef Id="_locales_zh_CN.pak_4b25ffe7_3161_4495_aa28_8eb006e26442" />
+        <ComponentRef Id="_locales_zh_TW.pak_e2360384_ac4d_49d0_9162_10ccd0e5a873" />
+        <ComponentRef Id="_better_sqlite3.node_ea80b9db_8dda_4acf_817e_18bd899786e9" />
+        <ComponentRef Id="_index.js_e3c19839_e8fb_4043_b060_1eb13868317e" />
+        <ComponentRef Id="_index.html_cf95bf16_16f9_4a4d_8fb7_dc6d98382846" />
+        <ComponentRef Id="_index.js_3c6364d2_4f74_4616_b29f_317c1a2c47d6" />
+        <ComponentRef Id="_index.js.LICENSE.txt_dc32e156_6bda_4ed3_8154_e2d10b690bbf" />
+        <ComponentRef Id="_preload.js_0fa0f2a4_0cc1_4ef3_8ebf_db0d1a7bf94d" />
+        <ComponentRef Id="_resources_app_package.json_5e5d44d2_9d6f_48b9_a752_b17d1a564896" />
+        <ComponentRef Id="_LICENSE_e08e8728_87fe_40f6_93e9_cf4827970473" />
+        <ComponentRef Id="_LICENSES.chromium.html_e22b79a3_3ef6_43a6_a426_e02466352229" />
+        <ComponentRef Id="_chrome_100_percent.pak_12efe963_4739_4c78_9c44_728fb9293f8a" />
+        <ComponentRef Id="_chrome_200_percent.pak_40bcc5bf_39c4_495e_b148_6a5e7e00d328" />
+        <ComponentRef Id="_d3dcompiler_47.dll_c998d924_5e5e_4fe9_b4ab_775b2b875394" />
+        <ComponentRef Id="_ffmpeg.dll_fc1b2b0a_a1b6_4e5b_b73a_c8a300f3566c" />
+        <ComponentRef Id="_icudtl.dat_b6ea452f_2b3c_4637_8494_b0063e79da72" />
+        <ComponentRef Id="_josh_silveous_grading_application._eeb9f795_41f3_405d_a45b_888d38502272" />
+        <ComponentRef Id="_libEGL.dll_375fbdcb_0dcc_423d_9498_175156d13c00" />
+        <ComponentRef Id="_libGLESv2.dll_63fb9a61_18e2_44ab_b636_9d0abe7aa0cb" />
+        <ComponentRef Id="_resources.pak_6a35b45a_dc1b_41eb_85ea_0f6dec19e988" />
+        <ComponentRef Id="_snapshot_blob.bin_e77866c7_5b06_4e2a_b99c_3c5bd6ca2482" />
+        <ComponentRef Id="_v8_context_snapshot.bin_be0848cd_0fea_4149_ba8f_e19cfb775a8d" />
+        <ComponentRef Id="_version_edfe30ef_908b_4540_ba0e_36fe1322c0a5" />
+        <ComponentRef Id="_vk_swiftshader.dll_e4bc50bd_ddc9_4d86_8cb4_832da4de741f" />
+        <ComponentRef Id="_vk_swiftshader_icd.json_f8c87975_11eb_447e_95a8_e5209758fdf5" />
+        <ComponentRef Id="_vulkan_1.dll_0e319c3d_4784_4a98_aa73_17eccf6a20ed" />
+        <ComponentRef Id="_josh_silveous_grading_application._6c78b29a_cbb6_4355_9cc4_478397fbd88a" />
+        <ComponentRef Id="_.installInfo.json_48a3ab80_1e81_4289_bf53_c9e1ad439a34" />
+        <ComponentRef Id="RegistryInstallPath" />
+        <ComponentRef Id="UninstallDisplayName" />
+        <ComponentRef Id="UninstallPublisher" />
+        <ComponentRef Id="UninstallDisplayVersion" />
+        <ComponentRef Id="UninstallModifyString" />
+        <ComponentRef Id="UninstallString" />
+        <ComponentRef Id="UninstallDisplayIcon" />
+        <ComponentRef Id="ApplicationShortcut" />
+        <ComponentRef Id="DesktopShortcut" />
+        <ComponentRef Id="PurgeOnUninstall" />
+      </Feature> 
+    </Feature> 
+  </Product>
+</Wix>
