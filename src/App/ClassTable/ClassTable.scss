@@ -189,6 +189,7 @@
     
     .button_container {
         min-width: 715px;
+        position: sticky;
     }
 }
 
@@ -198,7 +199,6 @@
     align-items: flex-start;
     gap: 5px;
     bottom: 20px;
-    position: sticky;
     margin-top: 10px;
     max-width: 100%;
     

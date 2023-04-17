@@ -9,6 +9,17 @@
         font-size: 20px;
         text-align: center;
     }
+    
+    .button_container {
+        display: flex;
+        flex-direction: row;
+        button {
+            text-align: center;
+            display: flex;
+            justify-content: center;
+
+        }
+    }
 
     .error_message {
         font-size: 12px;
