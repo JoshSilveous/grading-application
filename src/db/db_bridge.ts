@@ -1,6 +1,16 @@
 import sqlite from 'better-sqlite3'
+import fs from 'fs'
+import path from 'path'
 
-let db = sqlite('data.db')
+const DBFileDir = path.join(process.env.USERPROFILE, 'Documents', 'josh_grading_application_data')
+const DBFilePath = path.join(DBFileDir, 'data.db')
+
+// check if directory exists, create if not
+if (!fs.existsSync(DBFileDir)) {
+    fs.mkdirSync(DBFileDir, { recursive: true })
+}
+
+let db = sqlite(DBFilePath)
 
 // Potential performance buff, may apply if needed
 // see https://github.com/WiseLibs/better-sqlite3/blob/master/docs/performance.md
