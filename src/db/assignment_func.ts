@@ -9,57 +9,52 @@ function createAssignment(
     max_points: number
 ): number {
 
-    /*  order_position determines the order in which assignments will be layed out in 
+    /*  
+        order_position determines the order in which assignments will be layed out in 
         the table for the user. This is stored in the database so it can persist among 
         re-loads of the database. This chunk of code gets the number of current 
         assignments in the class, to define the new assignment's position.
+
+        I didn't end up implementing this feature in the design, so it doesn't actually do anything currently.
     */
     const sqlGetAssignmentNum = `
-        SELECT * FROM Assignment WHERE class_id = ${class_id};
+        SELECT * FROM Assignment WHERE class_id = ?;
     `
     const stmtGetAssignmentNum = db.prepare(sqlGetAssignmentNum)
-    const order_position = stmtGetAssignmentNum.all().length
-
+    const order_position = stmtGetAssignmentNum.all(class_id).length
 
 
     const sqlInsert = `
         INSERT INTO Assignment VALUES 
-        (NULL,  '${name}', '${description}', '${assignment_type}', ${is_extra_credit ? 1 : 0}, ${max_points}, ${order_position}, ${class_id});
+        (NULL, ?, ?, ?, ?, ?, ?, ?);
     `
-    db.exec(sqlInsert)
-
-    
-    
-    const sqlGetID = `
-        SELECT assignment_id FROM Assignment
-        WHERE class_id = ${class_id}
-        AND name = '${name}'
-        AND description = '${description}'
-        AND assignment_type = '${assignment_type}'
-        AND is_extra_credit = ${is_extra_credit ? 1 : 0}
-        AND max_points = ${max_points};
-        `
-        
-    const stmtGetID = db.prepare(sqlGetID)
-    const resGetID = stmtGetID.all().pop().assignment_id
+    const stmtInsert = db.prepare(sqlInsert)
+    const resInsertNewID = stmtInsert.run(
+        name, description, assignment_type,
+        is_extra_credit ? 1 : 0,
+        max_points, order_position, class_id
+    ).lastInsertRowid
 
 
     // Create entries in the `Grade` table for each assignment, with a default value of 0
     const sqlGetStudentsInClass = `
-        SELECT student_id FROM Enrollment WHERE class_id = ${class_id}
+        SELECT student_id FROM Enrollment WHERE class_id = ?;
     `
     const stmtGetStudentsInClass = db.prepare(sqlGetStudentsInClass)
-    const studentsInClass = stmtGetStudentsInClass.all()
+    const studentsInClass = stmtGetStudentsInClass.all(class_id)
 
-    let sqlInsertGrades = ''
+    const sqlInsertGrade = `
+        INSERT INTO Grade VALUES (?, ?, 0, 0);
+    `
+    const stmtInsertGrade = db.prepare(sqlInsertGrade)
     studentsInClass.forEach(student => {
-        sqlInsertGrades += 
-            `INSERT INTO Grade VALUES (${student.student_id}, ${resGetID}, 0, 0);`
+        stmtInsertGrade.run(student.student_id, resInsertNewID)
     })
-    db.exec(sqlInsertGrades)
 
-    return resGetID
+
+    return resInsertNewID as number
 }
+
 function editAssignment(
     assignment_id: number,
     name: string, 
@@ -70,40 +65,52 @@ function editAssignment(
 ): void {
     const sql = `
         UPDATE Assignment
-        SET name = '${name}',
-            description = '${description}',
-            assignment_type = '${assignment_type}',
-            is_extra_credit = ${is_extra_credit ? 1 : 0},
-            max_points = ${max_points}
-        WHERE assignment_id = ${assignment_id};
+        SET name = ?,
+            description = ?,
+            assignment_type = ?,
+            is_extra_credit = ?,
+            max_points = ?
+        WHERE assignment_id = ?;
     `
-    db.exec(sql)
+    const stmt = db.prepare(sql)
+    stmt.run(
+        name, description, assignment_type,
+        is_extra_credit ? 1 : 0,
+        max_points, assignment_id
+    )
 }
+
 function deleteAssignment(assignment_id: number): void {
     const sql = `
         DELETE FROM Assignment
-        WHERE assignment_id = ${assignment_id};
+        WHERE assignment_id = ?;
     `
-    db.exec(sql)
+    const stmt = db.prepare(sql)
+    stmt.run(assignment_id)
 }
+
 function getAssignment(assignment_id: number): AssignmentInfo {
     const sql = `
         SELECT * FROM Assignment
-        WHERE assignment_id = ${assignment_id};
+        WHERE assignment_id = ?;
     `
     const stmt = db.prepare(sql)
-    const res: AssignmentInfo[] = stmt.all()
-    return res[0]
+    const res: AssignmentInfo = stmt.get(assignment_id)
+    return res
 
 }
+
 function updateAssignmentOrder(assignment_id: number, order_position: number): void {
     const sql = `
         UPDATE Assignment
-        SET order_position = ${order_position}
-        WHERE assignment_id = ${assignment_id};
+        SET order_position = ?
+        WHERE assignment_id = ?;
     `
-    db.exec(sql)
+    const stmt = db.prepare(sql)
+    stmt.run(order_position, assignment_id)
 }
+
+
 
 declare global {
     interface AssignmentInfo {

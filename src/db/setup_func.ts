@@ -76,6 +76,8 @@ function dropTables() {
     db.exec(sql)
 }
 
+
+
 declare global {
     interface setup_func_exports {
         /**
@@ -89,6 +91,7 @@ declare global {
         dropTables: () => void
     }
 }
+
 export default {
     generateTables,
     dropTables

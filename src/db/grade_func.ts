@@ -3,12 +3,14 @@ import db from './db_bridge'
 function editGradePoints(student_id: number, assignment_id: number, earned_points: number): void {
     const sql = `
         UPDATE Grade
-        SET earned_points = ${earned_points}
-        WHERE student_id = ${student_id}
-        AND assignment_id = ${assignment_id};
+        SET earned_points = ?
+        WHERE student_id = ?
+        AND assignment_id = ?;
     `
-    db.exec(sql)
+    const stmt = db.prepare(sql)
+    stmt.run(earned_points, student_id, assignment_id)
 }
+
 function editGradeExempt(student_id: number, assignment_id: number, is_exempt: boolean): void {
     const sql = `
         UPDATE Grade
@@ -16,31 +18,47 @@ function editGradeExempt(student_id: number, assignment_id: number, is_exempt: b
         WHERE student_id = ${student_id}
         AND assignment_id = ${assignment_id};
     `
-    db.exec(sql)
+    const stmt = db.prepare(sql)
+    stmt.run(
+        is_exempt ? 1 : 0, 
+        student_id, 
+        assignment_id
+    )
 }
 
 function applyBulkChanges(changes: PendingChange[]) {
-    let sql = ``
+    const sqlChangePoints = `
+        UPDATE Grade SET earned_points = ?
+            WHERE student_id = ?
+            AND assignment_id = ?;
+    `
+    const sqlChangeExempt = `
+        UPDATE Grade SET is_exempt = ? 
+            WHERE student_id = ? 
+            AND assignment_id = ?;
+    `
+    const stmtChangePoints = db.prepare(sqlChangePoints)
+    const stmtChangeExempt = db.prepare(sqlChangeExempt)
+    
     changes.forEach(change => {
         if (change.newEarnedPoints !== undefined) {
-            sql += `
-                UPDATE Grade SET earned_points = ${change.newEarnedPoints} 
-                WHERE student_id = ${change.student_id}
-                AND assignment_id = ${change.assignment_id};
-            `
-            console.log('changing grade')
+            stmtChangePoints.run(
+                change.newEarnedPoints,
+                change.student_id,
+                change.assignment_id
+            )
         }
         if (change.newIsExempt !== undefined) {
-            sql += `
-                UPDATE Grade SET is_exempt = ${change.newIsExempt} 
-                WHERE student_id = ${change.student_id} 
-                AND assignment_id = ${change.assignment_id};
-            `
+            stmtChangeExempt.run(
+                change.newIsExempt ? 1 : 0,
+                change.student_id,
+                change.assignment_id
+            )
         }
     })
-    console.log(sql)
-    db.exec(sql)
 }
+
+
 
 declare global {
     interface PendingChange {
@@ -72,6 +90,7 @@ declare global {
         applyBulkChanges: (changes: PendingChange[]) => void
     }
 }
+
 export default {
     editGradePoints,
     editGradeExempt,

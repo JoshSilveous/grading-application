@@ -1,5 +1,6 @@
 import db from './db_bridge'
 
+// for testing / debug purposes only
 function insertTestData() {
     const sql = `
         INSERT INTO Class VALUES

@@ -3,17 +3,19 @@ import db from './db_bridge'
 function getClassData(class_id: number): ClassData {
 
     const sqlClassInfo = `
-        SELECT * FROM Class WHERE class_id = ${class_id}
+        SELECT * FROM Class WHERE class_id = ?;
     `
     let stmtClassInfo = db.prepare(sqlClassInfo)
-    let retClassInfo = stmtClassInfo.all()[0]
+    let retClassInfo = stmtClassInfo.get(class_id)
 
 
     const sqlAssignments = `
-        SELECT * FROM Assignment WHERE class_id = ${class_id};
+        SELECT * FROM Assignment WHERE class_id = ?;
     `
     const stmtAssignments = db.prepare(sqlAssignments)
-    const retAssignments: AssignmentInfo[] = stmtAssignments.all()
+    const retAssignments: AssignmentInfo[] = stmtAssignments.all(class_id)
+
+    // Replace integers with booleans
     const retAssignmentsAdj = retAssignments.map(asgn => {
         return {...asgn, is_extra_credit: asgn.is_extra_credit ? true : false}
     })
@@ -28,22 +30,21 @@ function getClassData(class_id: number): ClassData {
         SELECT Student.student_id, first_name, last_name
             FROM Enrollment INNER JOIN Student
                 ON Enrollment.student_id = Student.student_id
-            WHERE class_id = ${class_id};    
+            WHERE class_id = ?;    
     `
     let stmtStudentNames = db.prepare(sqlStudentNames)
-    let retStudentNames = stmtStudentNames.all()
+    let retStudentNames = stmtStudentNames.all(class_id)
 
 
     const studentInfo = retStudentNames.map(student => {
         const sqlGrades = `
             SELECT assignment_id, earned_points, is_exempt
                 FROM Grade 
-                WHERE student_id = ${student.student_id}
-                AND assignment_id IN (${listAssignments})
-                ;
+                WHERE student_id = ?
+                AND assignment_id IN (${listAssignments});
         `
         const stmtGrades = db.prepare(sqlGrades)
-        const resGrades = stmtGrades.all().map(grade => {
+        const resGrades = stmtGrades.all(student.student_id).map(grade => {
             // convert is_exempt from number (1 or 0) to boolean (true or false)
             return { ...grade, is_exempt: grade.is_exempt ? true : false }
         })
@@ -68,38 +69,30 @@ function getClassData(class_id: number): ClassData {
 }
 
 function createClass(name: string, description: string): number {
-    const sqlInsert = `
+    const sql = `
         INSERT INTO Class (name, description)
-        VALUES ('${name}', '${description}');
+        VALUES (?, ?);
     `
-    db.exec(sqlInsert)
+    const stmt = db.prepare(sql)
+    const res = stmt.run(name, description)
 
-    const sqlGetID = `
-        SELECT class_id FROM Class
-        WHERE name = '${name}' AND description = '${description}';
-    `
-    const stmt = db.prepare(sqlGetID)
-    const res = stmt.all()
-
-    /* .pop(), just in case there are multiple classes with the same 
-        name & description, which is allowed. this will always return 
-        the latest entry. */
-    return res.pop().class_id
+    return res.lastInsertRowid as number
 }
 
 function deleteClass(class_id: number): void {
     const sql = `
-        DELETE FROM Class WHERE class_id = ${class_id}
+        DELETE FROM Class WHERE class_id = ?;
     `
-    db.exec(sql)
+    const stmt = db.prepare(sql)
+    stmt.run(class_id)
 }
 
 function getClassInfo(class_id: number): ClassInfo {
     const sql = `
-        SELECT * FROM Class WHERE class_id = ${class_id}
+        SELECT * FROM Class WHERE class_id = ?;
     `
     const stmt = db.prepare(sql)
-    const res: ClassInfo = stmt.all()[0]
+    const res: ClassInfo = stmt.get(class_id)
 
     return res
 }
@@ -117,11 +110,12 @@ function getClassList(): ClassInfo[] {
 function editClass(class_id: number, name: string, description: string): void {
     const sql = `
         UPDATE Class
-        SET name = '${name}',
-            description = '${description}'
-        WHERE class_id = ${class_id};
+        SET name = ?,
+            description = ?
+        WHERE class_id = ?;
     `
-    db.exec(sql)
+    const stmt = db.prepare(sql)
+    stmt.all(name, description, class_id)
 }
 
 function getStudentsNotInClass(class_id: number): StudentInfo[] {
@@ -129,13 +123,12 @@ function getStudentsNotInClass(class_id: number): StudentInfo[] {
         SELECT Student.student_id FROM Student
             INNER JOIN Enrollment
                 ON Student.student_id = Enrollment.student_id
-            WHERE class_id = ${class_id};
+            WHERE class_id = ?;
     `
     const stmtInClass = db.prepare(sqlInClass)
-    const resInClass = stmtInClass.all()
+    const resInClass = stmtInClass.all(class_id)
     
     let listOfStudentIDsInClass = ''
-
     resInClass.forEach((stu, stuIndex) => {
         if (stuIndex === 0) {
             listOfStudentIDsInClass += stu.student_id
@@ -153,6 +146,7 @@ function getStudentsNotInClass(class_id: number): StudentInfo[] {
 
     return resNotInClass
 }
+
 
 
 declare global {
@@ -231,7 +225,6 @@ declare global {
         getStudentsNotInClass: (class_id: number) => StudentInfo[]
     }
 }
-
 
 export default {
     getClassData,

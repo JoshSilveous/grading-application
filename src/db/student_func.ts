@@ -2,51 +2,43 @@ import db from './db_bridge'
 
 function getStudentInfo(student_id: number): StudentInfo {
     const sql = `
-        SELECT * FROM Student WHERE student_id = ${student_id};
+        SELECT * FROM Student WHERE student_id = ?;
     `
-
     const stmt = db.prepare(sql)
-    const res: StudentInfo[] = stmt.all()
+    const res: StudentInfo = stmt.get(student_id)
 
-    return res[0]
+    return res
 }
 
 function deleteStudent(student_id: number): void {
     const sql = `
         DELETE FROM Student
-        WHERE student_id = ${student_id};
+        WHERE student_id = ?;
     `
-    db.exec(sql)
+    const stmt = db.prepare(sql)
+    stmt.run(student_id)
 }
 
 function createStudent(first_name: string, last_name: string): number {
-    const sqlInsert = `
+    const sql = `
         INSERT INTO Student (first_name, last_name)
-        VALUES ('${first_name}', '${last_name}');
+        VALUES (?, ?);
     `
-    db.exec(sqlInsert)
-
-    const sqlGetID = `
-        SELECT student_id FROM Student
-        WHERE first_name = '${first_name}' AND last_name = '${last_name}';
-    `
-    const stmt = db.prepare(sqlGetID)
-    const res = stmt.all()
-
-    /* .pop() to get the latest item in the array, just in
-        case there is multiple students with the same name
-        (which is allowed) */
-    return res.pop().student_id
+    const stmt = db.prepare(sql)
+    const res = stmt.run(first_name, last_name)
+    
+    return res.lastInsertRowid as number
 }
 
 function editStudent(student_id: number, first_name: string, last_name: string): void {
     const sql = `
         UPDATE Student
-        SET first_name = '${first_name}',
-            last_name = '${last_name}'
-        WHERE student_id = ${student_id}
+        SET first_name = ?,
+            last_name = ?
+        WHERE student_id = ?;
     `
-    db.exec(sql)
+    const stmt = db.prepare(sql)
+    stmt.run(first_name, last_name, student_id)
 }
 
 function getStudentEnrollments(student_id: number): ClassInfo[] {
@@ -54,10 +46,10 @@ function getStudentEnrollments(student_id: number): ClassInfo[] {
         SELECT Class.class_id, name, description
             FROM Class INNER JOIN Enrollment
                 ON Class.class_id = Enrollment.class_id
-            WHERE student_id = ${student_id};
+            WHERE student_id = ?;
     `
     const stmt = db.prepare(sql)
-    const res: ClassInfo[] = stmt.all()
+    const res: ClassInfo[] = stmt.all(student_id)
 
     return res
 }
@@ -71,6 +63,8 @@ function getStudentList(): StudentInfo[] {
 
     return res
 }
+
+
 
 declare global {
     interface StudentInfo {
